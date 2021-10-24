@@ -4,19 +4,33 @@ from telegram import Update
 from telegram.ext import CallbackContext, Updater, Filters, MessageHandler
 import config
 import json
-from Protocol.field_type import FieldType, Field
+from Protocol.field_type import MessageType, Field
 from Criptography.cypher import *
+from utils.coding import cypher_key_to_base64, base64_str_to_public_key
+
+pub_key_by_sender_id = {}  # значения в b64
 
 
 def ping_handler(update, context):
     update.message.reply_text(text="pong")
 
 
-def get_pub_key_handler(update, context):
-    b64encoded = base64.b64encode(PUBLIC_KEY.encode())
-    response = {"public_key": str(b64encoded)[2:-1],
+def get_pub_key_handler(update, context, message: json):
+    sender_pub_key = message[Field.sender_public_key]
+    pub_key_by_sender_id[update.message.from_user.id] = sender_pub_key
+    response = {"public_key": cypher_key_to_base64(PUBLIC_KEY.encode()),
                 "encoding": "base64"}
     update.message.reply_text(text=json.dumps(response))
+
+
+def decipher_handler(update, context, message: json):
+    sender_pub_key_b64 = pub_key_by_sender_id[update.message.from_user.id]
+    sender_pub_key = base64_str_to_public_key(sender_pub_key_b64)
+    print(f"sender_pub_k29: {sender_pub_key}")
+    our_box = Box(PRIVATE_KEY, sender_pub_key)
+    encrypted = message[Field.body]
+    decrypted = our_box.decrypt(encrypted)
+    update.message.reply_text(text=decrypted)
 
 
 def router(update, context):
@@ -27,11 +41,14 @@ def router(update, context):
         update.message.reply_text(text="Invalid message")
         print(e)
         return
-    if message[Field.type] == FieldType.ping:
+    if message[Field.type] == MessageType.ping:
         ping_handler(update, context)
         return
-    if message[Field.type] == FieldType.get_public_key:
-        get_pub_key_handler(update, context)
+    if message[Field.type] == MessageType.get_public_key:
+        get_pub_key_handler(update, context, message)
+        return
+    if message[Field.type] == MessageType.message:
+        decipher_handler(update, context, message)
         return
     update.message.reply_text(text="I'm a teapot")
     print("Answered")
@@ -51,4 +68,14 @@ def main():
 
 
 if __name__ == '__main__':
+    private_k = PrivateKey.generate()
+    public_k = private_k.public_key
+    print(f"user pub k : {public_k}")
+
+    print(f"user priv k : {private_k}")
+
+
+
+    print(f"user pub k b64 : {cypher_key_to_base64(public_k.encode())}")
+    print(f"user priv k b64 : {cypher_key_to_base64(private_k.encode())}")
     main()
