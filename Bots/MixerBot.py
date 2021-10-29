@@ -31,6 +31,10 @@ class MixerBot:
         decrypted = b64to_bytes(our_box.decrypt(encrypted))
         update.message.reply_text(text=decrypted)
 
+    def unencrypted_message_handler(self, update, context, message):
+        print("UNENCRYPTED:")
+        # TODO снять верхний слой
+
     def router(self, update, context):
         try:
             print(update.message.text)
@@ -47,6 +51,9 @@ class MixerBot:
             return
         if message[Field.type] == MessageType.message:
             self.decipher_handler(update, context, message)
+            return
+        if message[Field.type] == MessageType.unencrypted_message:
+            self.unencrypted_message_handler(update, context, message)
             return
         update.message.reply_text(text="I'm a teapot")
         print("Answered")

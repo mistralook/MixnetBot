@@ -16,6 +16,7 @@ def base64_str_to_public_key(s: str):
     bytes_s = base64.b64decode(s)
     return PublicKey(bytes_s)  # , encoder=encoding.Base64Encoder
 
+
 def base64_str_to_private_key(s: str):
     bytes_s = base64.b64decode(s)
     return PrivateKey(bytes_s)  # , encoder=encoding.Base64Encoder
