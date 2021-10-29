@@ -6,7 +6,7 @@ import config
 import json
 from Protocol.field_type import MessageType, Field
 from Criptography.cypher import *
-from utils.coding import cypher_key_to_base64, base64_str_to_public_key
+from utils.coding import bytes_to_b64, base64_str_to_public_key, b64to_bytes
 
 pub_key_by_sender_id = {}  # значения в b64
 
@@ -18,7 +18,7 @@ def ping_handler(update, context):
 def get_pub_key_handler(update, context, message: json):
     sender_pub_key = message[Field.sender_public_key]
     pub_key_by_sender_id[update.message.from_user.id] = sender_pub_key
-    response = {"public_key": cypher_key_to_base64(PUBLIC_KEY.encode()),
+    response = {"public_key": bytes_to_b64(PUBLIC_KEY.encode()),
                 "encoding": "base64"}
     update.message.reply_text(text=json.dumps(response))
 
@@ -74,8 +74,9 @@ if __name__ == '__main__':
 
     print(f"user priv k : {private_k}")
 
-
-
-    print(f"user pub k b64 : {cypher_key_to_base64(public_k.encode())}")
-    print(f"user priv k b64 : {cypher_key_to_base64(private_k.encode())}")
+    print(f"user pub k b64 : {bytes_to_b64(public_k.encode())}")
+    print(f"user priv k b64 : {bytes_to_b64(private_k.encode())}")
+    print(f" BOT pub_k 64: {bytes_to_b64(PUBLIC_KEY.encode())}")
+    print(f" BOT priv_k 64: {bytes_to_b64(PRIVATE_KEY.encode())}")
+    print(f" BOT priv_k: {PRIVATE_KEY.encode()}")
     main()
