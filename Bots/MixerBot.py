@@ -32,8 +32,6 @@ class MixerBot:
         update.message.reply_text(text=decrypted)
 
     def router(self, update, context):
-        print("UPDATE!!!")
-        update.message.reply_text(text="I see")
         try:
             print(update.message.text)
             message = json.loads(update.message.text)
