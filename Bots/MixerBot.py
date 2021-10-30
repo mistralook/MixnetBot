@@ -1,4 +1,5 @@
 from telegram import Update
+import telegram
 from telegram.ext import CallbackContext, Updater, Filters, MessageHandler
 import config
 import json
@@ -32,8 +33,15 @@ class MixerBot:
         update.message.reply_text(text=decrypted)
 
     def unencrypted_message_handler(self, update, context, message):
-        print("UNENCRYPTED:")
-        # TODO снять верхний слой
+        print("UNENCRYPTED")
+        print(message)
+        body = message[Field.body]
+        to = body[Field.to]
+        sender_chat_id = update.effective_chat.id
+        sent_mes = context.bot.send_message(chat_id=to, text="Hello from first",
+                                            allow_sending_without_reply=True)
+        print("sent")
+        print(sent_mes)
 
     def router(self, update, context):
         try:
@@ -64,6 +72,7 @@ class MixerBot:
             token=self.token,
             use_context=True
         )
+        # print(updater.bot)
         updater.dispatcher.add_handler(MessageHandler(filters=Filters.text,
                                                       callback=self.router))
 

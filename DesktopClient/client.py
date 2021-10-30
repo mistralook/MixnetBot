@@ -15,9 +15,15 @@ client.start()
 
 async def main():
     me = await client.get_me()
-    route = ['@OnionMixer1Bot', '@OnionMixer2Bot', me.username]  # должно приходить обратно к отправителю
+    id_by_name = {'@OnionMixer1Bot': "2060785008",
+                  '@OnionMixer2Bot': "2027385873",
+                  me.username: "81361925"}
+    print(me)
+    route = [id_by_name['@OnionMixer1Bot'],
+             id_by_name['@OnionMixer2Bot'],
+             id_by_name[me.username]]  # должно приходить обратно к отправителю
     onion_wrapped = multiple_encrypt(message_from_user=get_user_input(), route=route)
-    await client.send_message(route[0], onion_wrapped)
+    await client.send_message('@OnionMixer1Bot', onion_wrapped)
 
 
 with client:
