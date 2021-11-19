@@ -9,4 +9,5 @@ class Field:
     type = "type"
     body = "body"
     to = "to"
+    id="id"
     sender_public_key = "sender_public_key"
