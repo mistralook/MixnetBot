@@ -4,6 +4,8 @@ import os
 import threading
 import logging
 
+from Domain import generate_and_save_keys
+
 
 class MixerMessenger:
     def __init__(self, master: py_cui.PyCUI):
@@ -11,6 +13,7 @@ class MixerMessenger:
         self.chats_scroll_cell = self.master.add_scroll_menu('Chats', 0, 0, row_span=5, column_span=1)
         self.chat_cell = self.master.add_scroll_menu("Messages", 0, 1, 5, 5)
         self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_text_box)
+        self.generate_keys = self.master.add_button("Generate keys", 6, 0, command=self.generate_keys)
         self.input = self.master.add_text_box("Your input", 5, 1, 1, 5)
 
         self.chats_scroll_cell.add_key_command(py_cui.keys.KEY_ENTER, self.show_chat)
@@ -39,6 +42,13 @@ class MixerMessenger:
         message = self.input.get()
         self.chat_cell.add_item(message)
         self.input.clear()
+
+    def generate_keys(self):
+        try:
+            generate_and_save_keys()
+            self.master.show_message_popup("DONE", 'Keys generated')
+        except FileExistsError:
+            self.master.show_warning_popup("Warning", 'Keys are already generated')
 
     def show_message(self):
         """Displays a simple message popup
@@ -152,6 +162,6 @@ class MixerMessenger:
 # Create the CUI, pass it to the wrapper object, and start it
 root = py_cui.PyCUI(8, 6)
 root.set_title('MixerNet')
-root.enable_logging(logging_level=logging.DEBUG)
+# root.enable_logging(logging_level=logging.DEBUG)
 s = MixerMessenger(root)
 root.start()
