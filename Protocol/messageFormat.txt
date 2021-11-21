@@ -1,10 +1,11 @@
 {
   "body": {
     "body": "Hi Mark",
-    "to": "recipient Mark",
+    "to": "None",
     "cypher_count":0
   },
-  "to":"mixer",
+  "to_pub_k":"somepk",
+  "to":"recipient Mark",
   "cypher_count":1
 }
 
@@ -17,10 +18,11 @@
         "to": "None",
         "cypher_count": 0
       },
+      "to_pub_k":"somepk",
       "to": "recipient Mark",
       "cypher_count": 1
     },
-    "to": "http://127.0.0.1:9000/",
+    "to": "http://127.0.0.1:9000/message",
     "cypher_count": 2
   },
   "to": "prev_last_mixer",
