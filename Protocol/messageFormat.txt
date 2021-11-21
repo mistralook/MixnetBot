@@ -1,0 +1,28 @@
+{
+  "body": {
+    "body": "Hi Mark",
+    "to": "recipient Mark",
+    "cypher_count":0
+  },
+  "to":"mixer",
+  "cypher_count":1
+}
+
+
+{
+  "body": {
+    "body": {
+      "body": {
+        "body": "Hi Mark",
+        "to": "None",
+        "cypher_count": 0
+      },
+      "to": "recipient Mark",
+      "cypher_count": 1
+    },
+    "to": "http://127.0.0.1:9000/",
+    "cypher_count": 2
+  },
+  "to": "prev_last_mixer",
+  "cypher_count": 3
+}
