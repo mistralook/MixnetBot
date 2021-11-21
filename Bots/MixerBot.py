@@ -1,6 +1,7 @@
+import requests
 from telegram import Update
 import telegram
-from telegram.ext import CallbackContext, Updater, Filters, MessageHandler
+from telegram.ext import CallbackContext, Updater, Filters, MessageHandler, CommandHandler
 import config
 import json
 from Protocol.field_type import MessageType, Field
@@ -12,6 +13,10 @@ class MixerBot:
     def __init__(self, token):
         self.pub_key_by_sender_id = {}  # значения в b64
         self.token = token
+
+    def start(self, update: Update, context: CallbackContext) -> None:
+        """Sends explanation on how to use the bot."""
+        update.message.reply_text('Hi!')
 
     def ping_handler(self, update, context):
         update.message.reply_text(text="pong")
@@ -66,15 +71,20 @@ class MixerBot:
         update.message.reply_text(text="I'm a teapot")
         print("Answered")
 
-    def start(self):
+    def run(self):
         print('Bot started')
         updater = Updater(
             token=self.token,
             use_context=True
         )
         # print(updater.bot)
+        updater.dispatcher.add_handler(CommandHandler("start", self.start))
+        updater.dispatcher.add_handler(CommandHandler("ping", self.ping_handler))
         updater.dispatcher.add_handler(MessageHandler(filters=Filters.text,
                                                       callback=self.router))
 
         updater.start_polling()
         updater.idle()
+
+
+requests.post()

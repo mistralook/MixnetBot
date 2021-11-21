@@ -18,4 +18,4 @@ if __name__ == '__main__':
     print(f" BOT priv_k 64: {bytes_to_b64(PRIVATE_KEY.encode())}")
     print(f" BOT priv_k: {PRIVATE_KEY.encode()}")
     bot = MixerBot(config.token1)
-    bot.start()
+    bot.run()
