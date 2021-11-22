@@ -4,7 +4,7 @@ import os
 import threading
 import logging
 
-from Domain import generate_and_save_keys
+from Domain import generate_and_save_keys, send
 
 
 class MixerMessenger:
@@ -40,6 +40,7 @@ class MixerMessenger:
 
     def send_message(self):
         message = self.input.get()
+        send(message)
         self.chat_cell.add_item(message)
         self.input.clear()
 
