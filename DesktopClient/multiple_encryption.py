@@ -6,14 +6,20 @@ from Prt.field_type import Field
 
 
 def multiple_encrypt(message_from_user: str, route: list):
+    recv_pub_k = route[-1]
+    # route = route[:-1]  # удалили конечного получателя
     rev = list(reversed(route))  # сначала получатель, потом конечный миксер, ..., 1-й миксер
-    obj = message_from_user
+    obj = {Field.body: message_from_user,
+           Field.to: None,
+           Field.cypher_count: 0}
+    first_wrapped = True
     for node in rev:
         obj = {
             # Field.type: MessageType.unencrypted_message,
             Field.body: obj,
-            Field.to: node
+            Field.to: f"{node}/message" if not first_wrapped else None,
+            Field.to_pub_k: node if first_wrapped else None,
+            Field.cypher_count: obj[Field.cypher_count] + 1
         }
-    res = json.dumps(obj, ensure_ascii=False)
-    # print(res)
-    return res
+        first_wrapped = False
+    return obj

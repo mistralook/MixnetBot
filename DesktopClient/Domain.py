@@ -1,8 +1,12 @@
 import json
+import sys
 
+import requests
 from nacl.public import PrivateKey, Box
 import os.path
 
+sys.path.append('../')
+from Prt.field_type import Field
 from multiple_encryption import multiple_encrypt
 from FlaskBots.Network import get_all_servers
 
@@ -25,4 +29,8 @@ def build_route(recv_pub_k):
 def send(recv_pub_k, message: str):
     route = build_route(recv_pub_k)
     onion_encrypted = multiple_encrypt(message, route)
-    print(onion_encrypted)
+    first_node = onion_encrypted[Field.to]
+    dumped = json.dumps(onion_encrypted)
+    requests.post(url=first_node, json=dumped)
+    print(dumped)
+    print("sent")

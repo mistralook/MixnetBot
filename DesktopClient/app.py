@@ -37,12 +37,15 @@ class MixerMessenger:
     def show_chat(self):
         self.chat_cell.clear()
         cur_receiver = self.chats_scroll_cell.get()
-        self.chat_cell.set_title(cur_receiver)
+        self.chat_cell.set_title(f"Chat with: {cur_receiver}")
         self.chat_cell.add_item("Some message")
 
     def send_message(self):
         message = self.input.get()
         cur_receiver = self.chats_scroll_cell.get()
+        if not cur_receiver:
+            self.master.show_warning_popup("Warning", "Select receiver from 'Chats' menu")
+            return
         send(recv_pub_k=cur_receiver, message=message)
         self.chat_cell.add_item(message)
         self.input.clear()
