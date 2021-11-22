@@ -1,6 +1,8 @@
 import json
+import sys
 
-from Protocol.field_type import *
+sys.path.append('../')
+from Prt.field_type import Field
 
 
 def multiple_encrypt(message_from_user: str, route: list):

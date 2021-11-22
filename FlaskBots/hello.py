@@ -7,7 +7,7 @@ from flask import request
 from Cryptography.cypher import PUBLIC_KEY
 from FlaskBots.MailRepository import MailRepository
 from FlaskBots.Network import get_all_servers
-from Protocol.field_type import Field
+from Prt.field_type import Field
 from utils.coding import bytes_to_b64
 
 app = Flask(__name__)

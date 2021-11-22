@@ -3,7 +3,7 @@ import json
 from nacl.public import PrivateKey, Box
 import os.path
 
-from DesktopClient.multiple_encryption import multiple_encrypt
+from multiple_encryption import multiple_encrypt
 from FlaskBots.Network import get_all_servers
 
 
