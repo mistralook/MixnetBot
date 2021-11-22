@@ -1,7 +1,7 @@
 import config
 
 from Bots.MixerBot import MixerBot
-from Criptography.cypher import *
+from Cryptography.cypher import *
 from utils.coding import bytes_to_b64
 from config import *
 

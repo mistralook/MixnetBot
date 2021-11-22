@@ -5,7 +5,7 @@ from telegram.ext import CallbackContext, Updater, Filters, MessageHandler, Comm
 import config
 import json
 from Protocol.field_type import MessageType, Field
-from Criptography.cypher import *
+from Cryptography.cypher import *
 from utils.coding import bytes_to_b64, base64_str_to_public_key, b64to_bytes
 
 

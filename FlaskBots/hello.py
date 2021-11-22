@@ -4,7 +4,7 @@ import requests
 from flask import Flask
 from flask import request
 
-from Criptography.cypher import PUBLIC_KEY
+from Cryptography.cypher import PUBLIC_KEY
 from FlaskBots.MailRepository import MailRepository
 from FlaskBots.Network import get_all_servers
 from Protocol.field_type import Field
