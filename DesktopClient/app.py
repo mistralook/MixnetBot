@@ -3,8 +3,8 @@ import time
 import os
 import threading
 import logging
-
-from Domain import generate_and_save_keys, send
+from Keys import generate_and_save_keys
+from Domain import send, get_updates
 
 
 class MixerMessenger:
@@ -13,7 +13,8 @@ class MixerMessenger:
         self.chats_scroll_cell = self.master.add_scroll_menu('Chats', 0, 0, row_span=5, column_span=1)
         self.chat_cell = self.master.add_scroll_menu("Messages", 0, 1, 5, 5)
         self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_text_box)
-        self.generate_keys = self.master.add_button("Generate keys", 6, 0, command=self.generate_keys)
+        self.generate_keys_btn = self.master.add_button("Generate keys", 6, 0, command=self.generate_keys)
+        self.get_updates_btn = self.master.add_button("Get updates", 7, 0, command=self.get_updates)
         self.input = self.master.add_text_box("Your input", 5, 1, 1, 5)
 
         self.chats_scroll_cell.add_key_command(py_cui.keys.KEY_ENTER, self.show_chat)
@@ -56,6 +57,10 @@ class MixerMessenger:
             self.master.show_message_popup("DONE", 'Keys generated')
         except FileExistsError:
             self.master.show_warning_popup("Warning", 'Keys are already generated')
+
+    def get_updates(self):
+        messages = get_updates()
+        self.chat_cell.add_item(messages)
 
     def show_message(self):
         """Displays a simple message popup

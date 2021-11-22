@@ -60,5 +60,6 @@ def send_broadcast(message):
 @app.route("/messages", methods=['GET'])
 def get_all_messages():
     message = request.get_json(force=True)
+    message = json.loads(message)
     pub_k = message[Field.sender_public_key]
     return {"messages": mail_repo.get_messages_by_recv_pub_k(pub_k)}

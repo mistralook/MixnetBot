@@ -10,6 +10,7 @@ class Field:
     body = "body"
     to = "to"
     to_pub_k = "to_pub_k"
+    sender_pub_k = "sender_pub_k"
     id = "id"
     sender_public_key = "sender_public_key"
     cypher_count = "cypher_count"  # показывает во сколько шифров обернуто body, находящееся на этой же глубине
