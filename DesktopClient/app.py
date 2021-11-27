@@ -40,6 +40,9 @@ class MixerMessenger:
     def show_chat(self):
         self.chat_cell.clear()
         cur_receiver = self.chats_scroll_cell.get()
+        if not cur_receiver:
+            self.master.show_warning_popup("Warning", "No chats are available. Add chat first.")
+            return
         self.chat_cell.set_title(f"Chat with: {cur_receiver}")
         self.chat_cell.add_item("Some message")
 
