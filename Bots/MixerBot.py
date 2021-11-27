@@ -4,7 +4,7 @@ import telegram
 from telegram.ext import CallbackContext, Updater, Filters, MessageHandler, CommandHandler
 import config
 import json
-from Prt.field_type import MessageType, Field
+from Protocol.FieldType import MessageType, Field
 from Cryptography.cypher import *
 from utils.coding import bytes_to_b64, base64_str_to_public_key, b64to_bytes
 

@@ -6,7 +6,7 @@ import requests
 from Keys import get_keys
 
 sys.path.append('../')
-from Prt.field_type import Field
+from Protocol.FieldType import Field
 from multiple_encryption import multiple_encrypt
 from FlaskBots.Network import get_all_servers
 

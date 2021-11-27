@@ -11,6 +11,8 @@ class MixerMessenger:
     def __init__(self, master: py_cui.PyCUI):
         self.master = master
         self.chats_scroll_cell = self.master.add_scroll_menu('Chats', 0, 0, row_span=5, column_span=1)
+        self.chats_scroll_cell.add_text_color_rule("", py_cui.WHITE_ON_BLACK, 'startswith',
+                                                   selected_color=py_cui.MAGENTA_ON_BLACK)
         self.chat_cell = self.master.add_scroll_menu("Messages", 0, 1, 5, 5)
         self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_text_box)
         self.generate_keys_btn = self.master.add_button("Generate keys", 6, 0, command=self.generate_keys)
