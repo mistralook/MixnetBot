@@ -6,10 +6,11 @@ import os.path
 name = "keys.json"
 
 
-def generate_and_save_keys():
+def generate_and_save_keys(nickname):
     private = PrivateKey.generate()
     keys = {"private_key": str(private.encode()),
-            "public_key": str(private.public_key.encode())}
+            "public_key": str(private.public_key.encode()),
+            "nickname": nickname}
     if os.path.isfile(name):
         raise FileExistsError
     with open(name, 'w') as file:

@@ -4,14 +4,14 @@ import requests
 from flask import Flask
 from flask import request
 
-from Cryptography.cypher import PUBLIC_KEY
-from FlaskBots.MailRepository import MailRepository
+from db.MailRepository import MailRepository
 from FlaskBots.Network import get_all_servers
 from Protocol.FieldType import Field
-from utils.coding import bytes_to_b64
+from db.UserRepository import UserRepository
 
 app = Flask(__name__)
 mail_repo = MailRepository()
+user_repo = UserRepository()
 
 
 @app.route("/hello", methods=['GET', 'POST'])
@@ -63,3 +63,15 @@ def get_all_messages():
     message = json.loads(message)
     pub_k = message[Field.sender_public_key]
     return {"messages": mail_repo.get_messages_by_recv_pub_k(pub_k)}
+
+
+@app.route("/user", methods=['POST'])
+def register_new_user():
+    message_obj = request.get_json(force=True)
+    pub_k = message_obj[Field.sender_public_key]
+    nickname = message_obj[Field.sender_nickname]
+    success = user_repo.add_user(pub_k, nickname)
+    if success:
+        for server in get_all_servers():
+            response = requests.post(url=server + "/user", json=json.dumps(message_obj))
+    return "OK", 200

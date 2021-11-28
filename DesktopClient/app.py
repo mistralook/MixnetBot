@@ -1,10 +1,10 @@
-import py_cui
-import time
-import os
 import threading
-import logging
-from Keys import generate_and_save_keys
+import time
+
+import py_cui
+
 from Domain import send, get_updates
+from Keys import generate_and_save_keys
 
 
 class MixerMessenger:
@@ -14,8 +14,8 @@ class MixerMessenger:
         self.chats_scroll_cell.add_text_color_rule("", py_cui.WHITE_ON_BLACK, 'startswith',
                                                    selected_color=py_cui.MAGENTA_ON_BLACK)
         self.chat_cell = self.master.add_scroll_menu("Messages", 0, 1, 5, 5)
-        self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_text_box)
-        self.generate_keys_btn = self.master.add_button("Generate keys", 6, 0, command=self.generate_keys)
+        self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_add_pub_k_text_box)
+        self.generate_keys_btn = self.master.add_button("Generate keys", 6, 0, command=self.show_name_text_box)
         self.get_updates_btn = self.master.add_button("Get updates", 7, 0, command=self.get_updates)
         self.input = self.master.add_text_box("Your input", 5, 1, 1, 5)
 
@@ -56,31 +56,19 @@ class MixerMessenger:
         self.chat_cell.add_item(message)
         self.input.clear()
 
-    def generate_keys(self):
+    def register_and_generate_keys(self, nickname):
         try:
-            generate_and_save_keys()
+            generate_and_save_keys(nickname)
             self.master.show_message_popup("DONE", 'Keys generated')
         except FileExistsError:
             self.master.show_warning_popup("Warning", 'Keys are already generated')
 
+    def show_name_text_box(self):
+        self.master.show_text_box_popup('Please enter your name', self.register_and_generate_keys)
+
     def get_updates(self):
         messages = get_updates()
         self.chat_cell.add_item(messages)
-
-    def show_message(self):
-        """Displays a simple message popup
-        """
-
-        self.master.show_message_popup('Hello!', 'This is a message popup. You can also spawn warnings and errors.')
-        # Below is the syntax for warning and error popups. Feel free to experiment with these
-        # self.master.show_warning_popup('Warning!', 'This is a warning popup. You can also spawn messages and errors.')
-        # self.master.show_error_popup('Error!', 'This is an error popup. You can also spawn warnings and messages.')
-
-    # -------------------------------------------------------------------------------
-    # Next, we take a look at the yes-no popup. It is spawned in a similar way to the message popup,
-    # but its second argument is a function that takes a single boolean parameter.
-    # If the user selects 'y' the funtion is run with True, otherwise with False
-    # -------------------------------------------------------------------------------
 
     def show_yes_no(self):
         """Displays a yes no popup asking if the user would like to quit
@@ -103,7 +91,7 @@ class MixerMessenger:
     def add_chat_to_list(self, receiver_pub_k):
         self.chats_scroll_cell.add_item(receiver_pub_k)
 
-    def show_text_box(self):
+    def show_add_pub_k_text_box(self):
         # Here, reset title is a function that takes a string parameter, which will be the user entered string
         self.master.show_text_box_popup('Please enter receiver pub k', self.add_chat_to_list)
 
