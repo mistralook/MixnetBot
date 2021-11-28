@@ -31,7 +31,8 @@ def get_public_key():
 @app.route("/message", methods=['POST'])
 def message():
     message = request.get_json(force=True)
-    print(message)
+    if isinstance(message, str):
+        message = json.loads(message)
     if message[Field.cypher_count] == 1:  # т.е. прислали широковещательно
         message[Field.type] = "broadcast"
         mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=json.dumps(message))
