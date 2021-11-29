@@ -1,3 +1,4 @@
+import argparse
 import json
 
 import requests
@@ -10,8 +11,6 @@ from Protocol.FieldType import Field
 from db.UserRepository import UserRepository
 
 app = Flask(__name__)
-mail_repo = MailRepository()
-user_repo = UserRepository()
 
 
 @app.route("/hello", methods=['GET', 'POST'])
@@ -76,3 +75,12 @@ def register_new_user():
         for server in get_all_servers():
             response = requests.post(url=server + "/user", json=json.dumps(message_obj))
     return "OK", 200
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--xport", dest="xport", default=5000, type=int)
+    args = parser.parse_args()
+    app.run(port=args.xport)
+    mail_repo = MailRepository()
+    user_repo = UserRepository()
