@@ -3,7 +3,7 @@ import time
 
 import py_cui
 
-from Domain import send, get_updates
+from Domain import send, save_updates, get_messages_by_pub_k
 from Keys import generate_and_save_keys
 
 
@@ -44,7 +44,12 @@ class MixerMessenger:
             self.master.show_warning_popup("Warning", "No chats are available. Add chat first.")
             return
         self.chat_cell.set_title(f"Chat with: {cur_receiver}")
-        self.chat_cell.add_item("Some message")
+        self.update_chat(cur_receiver)
+
+    def update_chat(self, sender_pub_k):
+        self.chat_cell.clear()
+        for m in get_messages_by_pub_k(sender_pub_k):
+            self.chat_cell.add_item(m)
 
     def send_message(self):
         message = self.input.get()
@@ -67,8 +72,8 @@ class MixerMessenger:
         self.master.show_text_box_popup('Please enter your name', self.register_and_generate_keys)
 
     def get_updates(self):
-        messages = get_updates()
-        self.chat_cell.add_item(messages)
+        messages = save_updates()
+        self.show_chat()
 
     def show_yes_no(self):
         """Displays a yes no popup asking if the user would like to quit

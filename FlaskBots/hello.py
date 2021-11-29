@@ -15,6 +15,13 @@ app = Flask(__name__)
 db = DB()
 
 
+def get_json_dict(request):
+    message = request.get_json(force=True)
+    if isinstance(message, str):
+        message = json.loads(message)
+    return message
+
+
 @app.route("/hello", methods=['GET', 'POST'])
 def hello_world():
     return "<p>Hello, World!</p>"
@@ -31,9 +38,7 @@ def get_public_key():
 
 @app.route("/message", methods=['POST'])
 def message():
-    message = request.get_json(force=True)
-    if isinstance(message, str):
-        message = json.loads(message)
+    message = get_json_dict(request)
     if message[Field.cypher_count] == 1:  # т.е. прислали широковещательно
         message[Field.type] = "broadcast"
         db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=json.dumps(message))
@@ -61,8 +66,7 @@ def send_broadcast(message):
 
 @app.route("/messages", methods=['GET'])
 def get_all_messages():
-    message = request.get_json(force=True)
-    message = json.loads(message)
+    message = get_json_dict(request)
     pub_k = message[Field.sender_public_key]
     return {"messages": db.mail_repo.get_messages_by_recv_pub_k(pub_k)}
 
