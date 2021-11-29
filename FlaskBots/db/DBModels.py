@@ -1,6 +1,6 @@
 from peewee import *
 
-conn = SqliteDatabase('mails.sqlite')
+conn = SqliteDatabase('db/db.sqlite')
 conn.connect()
 
 
