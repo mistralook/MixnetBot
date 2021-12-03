@@ -1,6 +1,8 @@
 import argparse
 import json
-
+import random
+from threading import Thread
+import time
 import requests
 from flask import Flask
 from flask import request
@@ -13,6 +15,7 @@ from db.UserRepository import UserRepository
 
 app = Flask(__name__)
 db = DB()
+messages = list()
 
 
 def get_json_dict(request):
@@ -47,10 +50,24 @@ def message():
     inner = json.loads(decrypted)  # cast str to obj
     # print(f"INNER: {inner}")
     if inner[Field.cypher_count] == 1:
-        send_broadcast(inner)
+        # send_broadcast(inner)
+        messages.append([send_broadcast, inner])
     if inner[Field.cypher_count] > 1:
-        send_to_next_node(inner)
+        # send_to_next_node(inner)
+        messages.append([send_to_next_node, inner])
     return "OK", 200
+
+
+def send_all_messages():
+    while True:
+        random.shuffle(messages)
+        for m in messages:
+            m[0](m[1])
+        messages.clear()
+        time.sleep(60)
+
+
+
 
 
 def send_to_next_node(message):
@@ -84,6 +101,8 @@ def register_new_user():
 
 
 if __name__ == '__main__':
+    thread = Thread(target=send_all_messages)
+    thread.start()
     parser = argparse.ArgumentParser()
     parser.add_argument("--xport", dest="xport", default=5000, type=int)
     args = parser.parse_args()
