@@ -16,7 +16,22 @@ from db.UserRepository import UserRepository
 app = Flask(__name__)
 db = DB()
 messages = list()
-
+size_messages = 5
+bm = """{
+    "body": {
+        "body": {
+            "body": "Hi",
+            "to": "None",
+            "sender_pub_k": "111",
+            "cypher_count": 0
+        },
+        "to_pub_k": "somepk",
+        "to": "recipient Mark",
+        "cypher_count": 1
+    },
+    "to": "tototo",
+    "cypher_count": 2
+}"""
 
 def get_json_dict(request):
     message = request.get_json(force=True)
@@ -50,35 +65,48 @@ def message():
     inner = json.loads(decrypted)  # cast str to obj
     # print(f"INNER: {inner}")
     if inner[Field.cypher_count] == 1:
-        # send_broadcast(inner)
-        messages.append([send_broadcast, inner])
+        send_broadcast(inner)
     if inner[Field.cypher_count] > 1:
-        # send_to_next_node(inner)
-        messages.append([send_to_next_node, inner])
+        send_to_next_node(inner)
     return "OK", 200
 
 
 def send_all_messages():
+    servers = get_all_servers()
+    if len(messages) < size_messages:
+        for i in range(size_messages - len(messages)):
+            mes = json.loads(bm)
+            mes["to"] = servers[random.randrange(0, len(servers))]+"/message"
+            mes["body"]["body"]["body"] = "a" * random.randrange(0, 100)
+            messages.append({"target": requests.post, "url": mes[Field.to], "json": mes, "do": print_response})
+
     while True:
+        time.sleep(60)
         random.shuffle(messages)
         for m in messages:
-            m[0](m[1])
+            if "do" in m:
+                m["do"](m["target"](url=m["url"], json=m["json"]))
+            else:
+                m["target"](url=m["url"], json=m["json"])
         messages.clear()
-        time.sleep(60)
-
-
 
 
 
 def send_to_next_node(message):
-    response = requests.post(url=message[Field.to], json=message)
-    print(f"Redirected. {response.text}")
+    # response = requests.post(url=message[Field.to], json=message)
+    messages.append({"target": requests.post, "url": message[Field.to], "json": message, "do": print_response})
+    # print(f"Redirected. {response.text}")
+
+
+def print_response(r):
+    print(f"Redirected. {r.text}")
 
 
 def send_broadcast(message):
     # print(f"BROADCASTING: {message}")
     for server in get_all_servers():
-        response = requests.post(url=server + "/message", json=message)
+        # response = requests.post(url=server + "/message", json=message)
+        messages.append({"target": requests.post, "url": server + "/message", "json": message})
 
 
 @app.route("/messages", methods=['GET'])
