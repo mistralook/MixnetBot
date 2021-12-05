@@ -33,6 +33,7 @@ bm = """{
     "cypher_count": 2
 }"""
 
+
 def get_json_dict(request):
     message = request.get_json(force=True)
     if isinstance(message, str):
@@ -40,12 +41,6 @@ def get_json_dict(request):
     return message
 
 
-@app.route("/hello", methods=['GET', 'POST'])
-def hello_world():
-    return "<p>Hello, World!</p>"
-
-
-# bytes_to_b64(PUBLIC_KEY.encode())
 @app.route("/public-key", methods=['POST'])
 def get_public_key():
     body = request.get_json()
@@ -63,7 +58,6 @@ def message():
     encrypted = message[Field.body]
     decrypted = json.dumps(encrypted)  # пока так потому что дешифратор вернет строчку, а не словарь
     inner = json.loads(decrypted)  # cast str to obj
-    # print(f"INNER: {inner}")
     if inner[Field.cypher_count] == 1:
         send_broadcast(inner)
     if inner[Field.cypher_count] > 1:
@@ -76,7 +70,7 @@ def send_all_messages():
     if len(messages) < size_messages:
         for i in range(size_messages - len(messages)):
             mes = json.loads(bm)
-            mes["to"] = servers[random.randrange(0, len(servers))]+"/message"
+            mes["to"] = servers[random.randrange(0, len(servers))] + "/message"
             mes["body"]["body"]["body"] = "a" * random.randrange(0, 100)
             messages.append({"target": requests.post, "url": mes[Field.to], "json": mes, "do": print_response})
 
@@ -91,11 +85,8 @@ def send_all_messages():
         messages.clear()
 
 
-
 def send_to_next_node(message):
-    # response = requests.post(url=message[Field.to], json=message)
     messages.append({"target": requests.post, "url": message[Field.to], "json": message, "do": print_response})
-    # print(f"Redirected. {response.text}")
 
 
 def print_response(r):
@@ -103,9 +94,7 @@ def print_response(r):
 
 
 def send_broadcast(message):
-    # print(f"BROADCASTING: {message}")
     for server in get_all_servers():
-        # response = requests.post(url=server + "/message", json=message)
         messages.append({"target": requests.post, "url": server + "/message", "json": message})
 
 
