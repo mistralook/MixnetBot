@@ -8,7 +8,7 @@ class MessageType:
 class Field:
     type = "type"
     body = "body"
-    to = "to"
+    to = "to"  # кому нужно отправить body, находящееся на этой же глубине
     to_pub_k = "to_pub_k"
     sender_pub_k = "sender_pub_k"
     sender_nickname = "sender_nickname"

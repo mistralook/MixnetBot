@@ -15,23 +15,7 @@ from db.UserRepository import UserRepository
 
 app = Flask(__name__)
 db = DB()
-messages = list()
-size_messages = 5
-bm = """{
-    "body": {
-        "body": {
-            "body": "Hi",
-            "to": "None",
-            "sender_pub_k": "111",
-            "cypher_count": 0
-        },
-        "to_pub_k": "somepk",
-        "to": "recipient Mark",
-        "cypher_count": 1
-    },
-    "to": "tototo",
-    "cypher_count": 2
-}"""
+message_queue = MessageQueue()
 
 
 def get_json_dict(request):
@@ -52,37 +36,17 @@ def get_public_key():
 @app.route("/message", methods=['POST'])
 def message():
     message = get_json_dict(request)
-    if message[Field.cypher_count] == 1:  # т.е. прислали широковещательно
-        message[Field.type] = "broadcast"
-        db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=json.dumps(message))
-    encrypted = message[Field.body]
-    decrypted = json.dumps(encrypted)  # пока так потому что дешифратор вернет строчку, а не словарь
-    inner = json.loads(decrypted)  # cast str to obj
-    if inner[Field.cypher_count] == 1:
-        send_broadcast(inner)
-    if inner[Field.cypher_count] > 1:
-        send_to_next_node(inner)
+    if not message[Field.to]:  # received junk
+        return "OK", 200
+    if message[Field.cypher_count] == 1:
+        if message.get(Field.type) != "broadcast":
+            send_broadcast(message)
+        else:
+            db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=json.dumps(message))
+
+        return "OK", 200
+    send_to_next_node(message)
     return "OK", 200
-
-
-def send_all_messages():
-    servers = get_all_servers()
-    if len(messages) < size_messages:
-        for i in range(size_messages - len(messages)):
-            mes = json.loads(bm)
-            mes["to"] = servers[random.randrange(0, len(servers))] + "/message"
-            mes["body"]["body"]["body"] = "a" * random.randrange(0, 100)
-            messages.append({"target": requests.post, "url": mes[Field.to], "json": mes, "do": print_response})
-
-    while True:
-        time.sleep(60)
-        random.shuffle(messages)
-        for m in messages:
-            if "do" in m:
-                m["do"](m["target"](url=m["url"], json=m["json"]))
-            else:
-                m["target"](url=m["url"], json=m["json"])
-        messages.clear()
 
 
 def send_to_next_node(message):
@@ -107,18 +71,18 @@ def get_all_messages():
 
 @app.route("/user", methods=['POST'])
 def register_new_user():
-    message_obj = request.get_json(force=True)
+    message_obj = get_json_dict(request)
     pub_k = message_obj[Field.sender_public_key]
     nickname = message_obj[Field.sender_nickname]
     success = db.user_repo.add_user(pub_k, nickname)
     if success:
         for server in get_all_servers():
-            response = requests.post(url=server + "/user", json=json.dumps(message_obj))
+            message_queue.append_message(Message(url=server + "/user", data=message_obj))
     return "OK", 200
 
 
 if __name__ == '__main__':
-    thread = Thread(target=send_all_messages)
+    thread = Thread(target=message_queue.send_mixed)
     thread.start()
     parser = argparse.ArgumentParser()
     parser.add_argument("--xport", dest="xport", default=5000, type=int)
