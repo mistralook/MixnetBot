@@ -1,12 +1,11 @@
 import argparse
 import json
-import random
 from threading import Thread
-import time
 import requests
 from flask import Flask
 from flask import request
 
+from FlaskBots.BackroundMessageQueue import MessageQueue, Message
 from db.DB import DB
 from db.MailRepository import MailRepository
 from FlaskBots.Network import get_all_servers
@@ -50,7 +49,7 @@ def message():
 
 
 def send_to_next_node(message):
-    messages.append({"target": requests.post, "url": message[Field.to], "json": message, "do": print_response})
+    message_queue.append_message(Message(url=message[Field.to], data=message[Field.body]))
 
 
 def print_response(r):
@@ -59,7 +58,8 @@ def print_response(r):
 
 def send_broadcast(message):
     for server in get_all_servers():
-        messages.append({"target": requests.post, "url": server + "/message", "json": message})
+        message[Field.type] = "broadcast"
+        message_queue.append_message(Message(url=server + "/message", data=message))
 
 
 @app.route("/messages", methods=['GET'])
