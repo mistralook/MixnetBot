@@ -21,7 +21,7 @@ class MessageQueue:
     def __init__(self):
         self.messages = list()
         self.send_interval = 5
-        self.buffer_size = 10
+        self.buffer_size = 0
         self.bm = """{
                 "body": {
                     "body": {

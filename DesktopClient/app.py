@@ -1,6 +1,6 @@
 import threading
 import time
-from threading import Thread
+
 import py_cui
 
 from Domain import send, save_updates, get_messages_by_pub_k
@@ -169,17 +169,9 @@ class MixerMessenger:
         self.master.stop_loading_popup()
 
 
-def get_updates_background():
-    while True:
-        new_messages_senders = save_updates()
-
-        time.sleep(5)
-
-
+# Create the CUI, pass it to the wrapper object, and start it
 root = py_cui.PyCUI(8, 6)
 root.set_title('MixerNet')
 # root.enable_logging(logging_level=logging.DEBUG)
-thread = Thread(target=get_updates_background)
-thread.start()
 s = MixerMessenger(root)
 root.start()
