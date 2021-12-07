@@ -32,7 +32,9 @@ def send(recv_pub_k, message: str):
     route = build_route(recv_pub_k)
     onion_encrypted = multiple_encrypt(message, route)
     first_node = onion_encrypted[Field.to]
-    requests.post(url=first_node, data=onion_encrypted[Field.body])
+    data = onion_encrypted[Field.body]
+    print("sent", data)
+    requests.post(url=first_node, data=data)
 
 
 def save_updates():

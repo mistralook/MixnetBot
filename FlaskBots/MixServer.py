@@ -11,7 +11,7 @@ from db.MailRepository import MailRepository
 from FlaskBots.Network import get_all_servers
 from Protocol.FieldType import Field
 from db.UserRepository import UserRepository
-from utils.coding import bytes_to_b64, b64to_bytes
+from utils.coding import bytes_to_b64, b64to_bytes, pack_k, unpack_obj
 
 app = Flask(__name__)
 db = DB()
@@ -19,36 +19,31 @@ message_queue = MessageQueue()
 
 PRIVATE_KEY = PrivateKey.generate()
 PUBLIC_KEY = PRIVATE_KEY.public_key
+print("PUBLIC KEY", PUBLIC_KEY.__bytes__())
 
 
-def get_json_dict(request):
-    print(request.get_data())
-    message = request.get_data()
-    print("---------------------------------------------------------------")
-    print("DATA:", message)
-    print("DATA TYPE:", type(message))
-    box = SealedBox(PRIVATE_KEY)
-    message = box.decrypt(b64to_bytes(message)).decode()
-    print("##################################################################")
-    print("MES:", message)
-    print("MES TYPE:", type(message))
-
-    if isinstance(message, str):
-        print('000000000000000000000000000000000000000')
-        print("message is str", message)
-        message = json.loads(message)
-    return message
+def get_json_dict(request) -> dict:
+    data = request.get_data()
+    return unpack_obj(data=data, sk=PRIVATE_KEY)
 
 
 @app.route("/public-key", methods=['GET'])
 def get_public_key():
     body = request.get_json()
     print(PUBLIC_KEY)
-    pk = bytes_to_b64(PUBLIC_KEY._public_key)
-    response = {"public_key": f"{pk}",
-                "encoding": "base64"}
+    response = {
+        "public_key": pack_k(PUBLIC_KEY),
+        "private_key": pack_k(PRIVATE_KEY),
+        "encoding": "base64"}
     print(response)
     return response
+
+
+@app.route("/hello", methods=['POST'])
+def hi():
+    body = request.get_data()
+    print(body.decode())
+    return "ok"
 
 
 @app.route("/message-broadcast", methods=['POST'])
@@ -61,7 +56,7 @@ def message_broadcast():
 @app.route("/message", methods=['POST'])
 def message():
     message = get_json_dict(request)
-
+    print("MES:", message)
     if not message[Field.to]:  # received junk
         return "OK", 200
     if message[Field.cypher_count] == 1:

@@ -7,14 +7,12 @@ from Protocol.FieldType import Field
 
 
 class Message:
-    def __init__(self, url: str, data: dict):
+    def __init__(self, url: str, data):
         self.url = url
-        if not isinstance(data, dict):
-            raise TypeError
         self.data = data
 
     def send(self):
-        requests.post(url=self.url, json=self.data)
+        requests.post(url=self.url, data=self.data)
 
 
 class MessageQueue:
