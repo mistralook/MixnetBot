@@ -5,6 +5,7 @@ import requests
 
 from Keys import get_keys
 from db.MailRepository import MailRepository
+from utils.coding import base64_str_to_public_key
 
 sys.path.append('../')
 from Protocol.FieldType import Field
@@ -18,14 +19,20 @@ def build_route(recv_pub_k):
     return get_all_servers() + [recv_pub_k]
 
 
+# def get_pub_keys():
+#     pub_key_by_mixer_addr = {}  # key - addr, value - PubKey(from pyNacl)
+#     for mixer in get_all_servers():
+#         response = requests.get(f"{mixer}/public-key")
+#         pub_key = base64_str_to_public_key(response.json()['public_key'])
+#         pub_key_by_mixer_addr[mixer] = pub_key
+#     return pub_key_by_mixer_addr
+
+
 def send(recv_pub_k, message: str):
     route = build_route(recv_pub_k)
     onion_encrypted = multiple_encrypt(message, route)
     first_node = onion_encrypted[Field.to]
-    dumped = json.dumps(onion_encrypted)
-    requests.post(url=first_node, json=dumped)
-    print(dumped)
-    print("sent")
+    requests.post(url=first_node, data=onion_encrypted[Field.body])
 
 
 def save_updates():
