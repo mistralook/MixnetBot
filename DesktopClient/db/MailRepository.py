@@ -1,4 +1,4 @@
-from collections import defaultdict
+import peewee
 from peewee import *
 
 conn = SqliteDatabase('db/mails.sqlite')
@@ -11,7 +11,7 @@ class BaseModel(Model):
 
 
 class Message(BaseModel):
-    message_id = AutoField(column_name='MessageId')
+    message_id = CharField(column_name='MessageId', primary_key=True)
     sender_pub_k = TextField(column_name='Sender_pub_K', null=False)
     text = TextField(column_name='Message_text', null=False)
 
@@ -22,11 +22,14 @@ class Message(BaseModel):
 conn.create_tables([Message])
 
 
-class MailRepository:
-
-    def add_message(self, sender_pub_k, message):
-        created = Message(sender_pub_k=sender_pub_k, text=message)
-        created.save()
+class UserMailRepository:
+    def add_message(self, sender_pub_k, message, id):
+        created = Message(message_id=id, sender_pub_k=sender_pub_k, text=message)
+        try:
+            created.save()
+            return True
+        except peewee.IntegrityError:
+            return False
 
     def get_messages_by_sender_pub_k(self, sender_pub_k):
         query = Message.select().where(Message.sender_pub_k == sender_pub_k)
