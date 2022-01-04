@@ -13,5 +13,6 @@ class Field:
     sender_pub_k = "sender_pub_k"
     sender_nickname = "sender_nickname"
     id = "id"
+    is_junk = "is_junk"
     sender_public_key = "sender_public_key"
     cypher_count = "cypher_count"  # показывает во сколько шифров обернуто body, находящееся на этой же глубине

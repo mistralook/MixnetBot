@@ -16,7 +16,7 @@ mail_repo = MailRepository()
 
 
 def build_route(recv_pub_k):
-    return get_all_servers() + [recv_pub_k]
+    return 1 * get_all_servers() + [recv_pub_k]
 
 
 # def get_pub_keys():

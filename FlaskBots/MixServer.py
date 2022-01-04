@@ -5,13 +5,15 @@ import requests
 from flask import Flask
 from flask import request
 from nacl.public import PrivateKey, SealedBox
+
+from DesktopClient.multiple_encryption import get_pub_keys
 from FlaskBots.BackroundMessageQueue import MessageQueue, Message
 from db.DB import DB
 from db.MailRepository import MailRepository
 from FlaskBots.Network import get_all_servers
 from Protocol.FieldType import Field
 from db.UserRepository import UserRepository
-from utils.coding import bytes_to_b64, b64to_bytes, pack_k, unpack_obj
+from utils.coding import bytes_to_b64, b64to_bytes, pack_k, unpack_obj, pack_obj
 
 app = Flask(__name__)
 db = DB()
@@ -30,12 +32,12 @@ def get_json_dict(request) -> dict:
 @app.route("/public-key", methods=['GET'])
 def get_public_key():
     body = request.get_json()
-    print(PUBLIC_KEY)
+    # print(PUBLIC_KEY)
     response = {
         "public_key": pack_k(PUBLIC_KEY),
         "private_key": pack_k(PRIVATE_KEY),
         "encoding": "base64"}
-    print(response)
+    # print(response)
     return response
 
 
@@ -55,16 +57,16 @@ def message_broadcast():
 
 @app.route("/message", methods=['POST'])
 def message():
-    message = get_json_dict(request)
+    message = get_json_dict(request)  # расшифрованное своим приватным ключом
     print("MES:", message)
-    if not message[Field.to]:  # received junk
+    if message.get(Field.is_junk):
         return "OK", 200
     if message[Field.cypher_count] == 1:
-        if message.get(Field.type) != "broadcast":
-            pass
-            # send_broadcast(message)
-        else:
+        if message.get(Field.type) == "broadcast":
             db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=json.dumps(message))
+            print("saved", json.dumps(message))
+        else:
+            send_broadcast(message)
         return "OK", 200
     send_to_next_node(message)
     return "OK", 200
@@ -79,10 +81,12 @@ def print_response(r):
 
 
 def send_broadcast(message):
+    mixers_pub_keys = get_pub_keys()
+    message[Field.type] = "broadcast"
     for server in get_all_servers():
-        message[Field.type] = "broadcast"
-
-        message_queue.append_message(Message(url=server + "/message", data=message))
+        encrypted = pack_obj(message, mixers_pub_keys[server])  # Зашифровали для получателя
+        message_queue.append_message(Message(url=server + "/message", data=encrypted))
+    print("sent brodcast", message)
 
 
 @app.route("/messages", methods=['GET'])

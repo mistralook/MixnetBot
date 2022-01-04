@@ -5,7 +5,7 @@ import pickle
 import requests
 from nacl.public import PrivateKey, PublicKey, SealedBox
 
-from utils.coding import bytes_to_b64, base64_str_to_public_key
+from utils.coding import bytes_to_b64, base64_str_to_public_key, pack_obj, unpack_obj
 
 #
 # def pack_pub_k(key: PublicKey):
@@ -20,6 +20,7 @@ from utils.coding import bytes_to_b64, base64_str_to_public_key
 #
 #
 PRIVATE_KEY = PrivateKey.generate()
+
 PUBLIC_KEY = PRIVATE_KEY.public_key
 
 
@@ -38,4 +39,5 @@ d = {"1": "ab"}
 # print(type(e))
 packed = pack_obj(d, PUBLIC_KEY)
 print(packed)
+PRIVATE_KEY = PrivateKey.generate()
 print(unpack_obj(packed, PRIVATE_KEY))

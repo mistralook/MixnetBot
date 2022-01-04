@@ -20,27 +20,11 @@ class MessageQueue:
         self.messages = list()
         self.send_interval = 5
         self.buffer_size = 0
-        self.bm = """{
-                "body": {
-                    "body": {
-                        "body": "Hi",
-                        "to": "None",
-                        "sender_pub_k": "111",
-                        "cypher_count": 0
-                    },
-                    "to_pub_k": "somepk",
-                    "to": "recipient Mark",
-                    "cypher_count": 1
-                },
-                "to": "tototo",
-                "cypher_count": 2
-            }"""
 
     def fill_by_junk(self):
         servers = get_all_servers()
         if len(self.messages) < self.buffer_size:
             for i in range(self.buffer_size - len(self.messages)):
-                mes = json.loads(self.bm)
                 junk_mes = {Field.to: None,
                             Field.body: "J" * random.randrange(0, 100)}
                 receiver = servers[random.randrange(0, len(servers))] + "/message"
