@@ -8,12 +8,10 @@ from nacl.public import PrivateKey, SealedBox
 
 from DesktopClient.multiple_encryption import get_pub_keys
 from FlaskBots.BackroundMessageQueue import MessageQueue, Message
-from db.DB import DB
-from db.MailRepository import MailRepository
 from FlaskBots.Network import get_all_servers
+from FlaskBots.db.DB import DB
 from Protocol.FieldType import Field
-from db.UserRepository import UserRepository
-from utils.coding import bytes_to_b64, b64to_bytes, pack_k, unpack_obj, pack_obj
+from utils.coding import bytes_to_b64, b64to_bytes, pack_k, unpack_obj, pack_obj, unpack_pub_k
 
 app = Flask(__name__)
 db = DB()
@@ -86,14 +84,14 @@ def send_broadcast(message):
     for server in get_all_servers():
         encrypted = pack_obj(message, mixers_pub_keys[server])  # Зашифровали для получателя
         message_queue.append_message(Message(url=server + "/message", data=encrypted))
-    print("sent brodcast", message)
+    print("sent broadcast", message)
 
 
 @app.route("/messages", methods=['GET'])
 def get_all_messages():
     message = get_json_dict(request)
     pub_k = message[Field.sender_public_key]
-    return {"messages": db.mail_repo.get_messages_by_recv_pub_k(pub_k)}
+    return pack_obj({"messages": db.mail_repo.get_messages_by_recv_pub_k(pub_k)}, pub_k=unpack_pub_k(pub_k))
 
 
 @app.route("/user", methods=['POST'])
@@ -115,4 +113,4 @@ if __name__ == '__main__':
     parser.add_argument("--xport", dest="xport", default=5000, type=int)
     args = parser.parse_args()
     db.connect(args.xport)
-    app.run(port=args.xport)
+    app.run(port=args.xport, debug=True)

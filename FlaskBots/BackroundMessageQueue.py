@@ -18,7 +18,7 @@ class Message:
 class MessageQueue:
     def __init__(self):
         self.messages = list()
-        self.send_interval = 5
+        self.send_interval = 1
         self.buffer_size = 0
 
     def fill_by_junk(self):
