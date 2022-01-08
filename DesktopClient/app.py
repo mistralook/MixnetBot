@@ -82,15 +82,14 @@ class MixerMessenger:
         operation_thread = threading.Thread(target=self.background_update)
         operation_thread.start()
 
-    def mark_chat_as_unread(self, updated_chats):
-        updated = set(updated_chats)
-        self.chats = list(set(self.chats).union(updated))
+    def add_new_chats_from_updates(self, updated_chats):
+        self.chats = list(set(self.chats).union(updated_chats))
         self.chats_scroll_cell._view_items = self.chats
 
     def background_update(self):
         while True:
             updated_chats = get_updates()
-            self.mark_chat_as_unread(updated_chats)
+            self.add_new_chats_from_updates(updated_chats)
             cur_chat = self.chats_scroll_cell.get()
             if cur_chat in updated_chats:
                 self.update_chat(cur_chat)
