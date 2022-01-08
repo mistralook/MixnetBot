@@ -3,13 +3,13 @@ import sys
 
 import requests
 
-from Keys import get_keys
+from Keys import get_keys, get_keys_f
 from db.MailRepository import MailRepository
-from utils.coding import base64_str_to_public_key
+from utils.coding import base64_str_to_public_key, unpack_obj, pack_k, pack_obj
 
 sys.path.append('../')
 from Protocol.FieldType import Field
-from multiple_encryption import multiple_encrypt
+from multiple_encryption import multiple_encrypt, get_pub_keys
 from FlaskBots.Network import get_all_servers
 
 mail_repo = MailRepository()
@@ -37,22 +37,20 @@ def send(recv_pub_k, message: str):
     requests.post(url=first_node, data=data)
 
 
-def save_updates():
+def get_updates():
     server = get_all_servers()[0]
-    pub_k = get_keys()["public_key"]
-    response = requests.get(url=f"{server}/messages", json=json.dumps({"sender_public_key": pub_k}))
-    messages = response.json()["messages"]
-    messages = list(map(lambda m: json.loads(m)[Field.body], messages))
-    # print(messages[0])
-    # print(type(messages[0]))
-    save_messages(messages)
-    # return messages
-    # return [json.loads(m)[Field.body][Field.body] for m in messages]
-
-
-def save_messages(messages):
-    for m in messages:
-        mail_repo.add_message(m[Field.sender_pub_k], m[Field.body])
+    server_pub_k = get_pub_keys()[server]  # TODO доставать из локального хранилища
+    keys = get_keys_f()
+    message = {"sender_public_key": pack_k(keys.public_key)}
+    response = requests.get(url=f"{server}/messages", data=pack_obj(message, server_pub_k))
+    d = unpack_obj(data=response.text, sk=keys.private_key)
+    senders = set()
+    for m in d["messages"]:
+        encrypted = json.loads(m)
+        unp = unpack_obj(encrypted[Field.body], keys.private_key)
+        mail_repo.add_message(unp[Field.sender_pub_k], unp[Field.body])
+        senders.add(unp[Field.sender_pub_k])
+    return senders
 
 
 def get_messages_by_pub_k(sender_pub_k):
