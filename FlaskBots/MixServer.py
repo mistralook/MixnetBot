@@ -46,11 +46,11 @@ def hi():
     return "ok"
 
 
-@app.route("/message-broadcast", methods=['POST'])
-def message_broadcast():
-    message = request.get_json()
-    db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=message[Field.body])
-    return "OK", 200
+# @app.route("/message-broadcast", methods=['POST'])
+# def message_broadcast():
+#     message = request.get_json()
+#     db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=message[Field.body])
+#     return "OK", 200
 
 
 @app.route("/message", methods=['POST'])
@@ -61,7 +61,8 @@ def message():
         return "OK", 200
     if message[Field.cypher_count] == 1:
         if message.get(Field.type) == "broadcast":
-            db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=json.dumps(message))
+            db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=json.dumps(message),
+                                     timestamp=message[Field.timestamp])
             print("saved", json.dumps(message))
         else:
             send_broadcast(message)

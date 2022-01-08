@@ -24,7 +24,7 @@ from utils.coding import pack_k, pack_obj, unpack_obj
 recv_keys = get_keys_f()
 public_key = recv_keys.public_key
 private_key = recv_keys.private_key
-send(public_key, "Update substitute4")
+send(public_key, "RR!")
 
 time.sleep(3)
 
