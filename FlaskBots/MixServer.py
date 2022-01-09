@@ -69,7 +69,8 @@ def get_all_messages():
     print("GETTING UPDATES")
     print(message)
     pub_k = message[Field.sender_public_key]
-    return pack_obj({"messages": 1}, pub_k=unpack_pub_k(pub_k))
+    return pack_obj({"messages": [r.text for r in db.mail_repo.get_messages_by_recv_pub_k(pub_k)]},
+                    pub_k=unpack_pub_k(pub_k))
 
 
 # def get_updates_for_user(pub_k: str, last_message_time: str, existing_messages_hash):
