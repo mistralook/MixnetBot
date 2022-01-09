@@ -24,6 +24,7 @@ class DB:
             message_id = AutoField(column_name='MessageId')
             pub_k = TextField(column_name='Pub_K', null=False)
             text = TextField(column_name='Message_text', null=False)
+            timestamp = DateTimeField(column_name="sending_time", null=False)
 
             class Meta:
                 table_name = 'Message'

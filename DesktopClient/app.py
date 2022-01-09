@@ -5,6 +5,7 @@ import py_cui
 
 from Domain import send, get_updates, get_messages_by_pub_k
 from Keys import generate_and_save_keys
+from coding import unpack_pub_k
 
 
 class MixerMessenger:
@@ -44,7 +45,7 @@ class MixerMessenger:
         if not cur_receiver:
             self.master.show_warning_popup("Warning", "Select receiver from 'Chats' menu")
             return
-        send(recv_pub_k=cur_receiver, message=message)
+        send(recv_pub_k=unpack_pub_k(cur_receiver), message=message)
         self.chat_cell.add_item(message)
         self.input.clear()
 
@@ -79,7 +80,7 @@ class MixerMessenger:
 
     def start_background_updating(self):
         # return
-        operation_thread = threading.Thread(target=self.background_update)
+        operation_thread = threading.Thread(target=self.background_update, daemon=True)
         operation_thread.start()
 
     def add_new_chats_from_updates(self, updated_chats):
@@ -88,7 +89,7 @@ class MixerMessenger:
 
     def background_update(self):
         while True:
-            updated_chats = get_updates()
+            updated_chats, _ = get_updates()
             self.add_new_chats_from_updates(updated_chats)
             cur_chat = self.chats_scroll_cell.get()
             if cur_chat in updated_chats:
