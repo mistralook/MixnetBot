@@ -18,3 +18,9 @@ class Field:
     cypher_count = "cypher_count"  # показывает во сколько шифров обернуто body, находящееся на этой же глубине
     timestamp = "timestamp"
     uid = "uid"
+
+
+class UpdateReq:
+    last_message_time = "last_message_time"
+    all_message_hash = "all_message_hash"
+    sender_public_key = "sender_public_key"

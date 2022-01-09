@@ -8,7 +8,7 @@ from db.MailRepository import MailRepository
 from utils.coding import base64_str_to_public_key, unpack_obj, pack_k, pack_obj
 
 sys.path.append('../')
-from Protocol.FieldType import Field
+from Protocol.FieldType import Field, UpdateReq
 from multiple_encryption import multiple_encrypt, get_pub_keys
 from FlaskBots.Network import get_all_servers
 
@@ -41,16 +41,26 @@ def get_updates():
     server = get_all_servers()[0]
     server_pub_k = get_pub_keys()[server]  # TODO доставать из локального хранилища
     keys = get_keys_f()
-    message = {"sender_public_key": pack_k(keys.public_key)}
+    message = get_update_request_message()
     response = requests.get(url=f"{server}/messages", data=pack_obj(message, server_pub_k))
     d = unpack_obj(data=response.text, sk=keys.private_key)
     senders = set()
+    messages = []
     for m in d["messages"]:
         encrypted = json.loads(m)
         unp = unpack_obj(encrypted[Field.body], keys.private_key)
-        mail_repo.add_message(unp[Field.sender_pub_k], unp[Field.body])
+        mail_repo.add_message(unp[Field.sender_pub_k], unp[Field.body], unp[Field.timestamp],
+                              unp[Field.uid])
         senders.add(unp[Field.sender_pub_k])
-    return senders
+        messages.append(unp[Field.body])
+    return senders, messages
+
+
+def get_update_request_message():
+    keys = get_keys_f()
+    return {UpdateReq.sender_public_key: pack_k(keys.public_key),
+            UpdateReq.last_message_time: mail_repo.get_last_message_time(),
+            UpdateReq.all_message_hash: mail_repo.get_all_messages_hash()}
 
 
 def get_messages_by_pub_k(sender_pub_k):

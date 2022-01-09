@@ -1,30 +1,23 @@
 import argparse
 import json
 from threading import Thread
-import requests
+
 from flask import Flask
 from flask import request
-from nacl.public import PrivateKey, SealedBox
 
 from DesktopClient.multiple_encryption import get_pub_keys
-from FlaskBots.BackroundMessageQueue import MessageQueue, Message
+from FlaskBots.BackroundMessageQueue import MessageQueue, MessageTask
 from FlaskBots.Network import get_all_servers
 from FlaskBots.db.DB import DB
 from Protocol.FieldType import Field
-from utils.coding import bytes_to_b64, b64to_bytes, pack_k, unpack_obj, pack_obj, unpack_pub_k
+from utils.coding import pack_k, unpack_obj, pack_obj, unpack_pub_k
+from Domain import PUBLIC_KEY, PRIVATE_KEY, get_json_dict
 
 app = Flask(__name__)
 db = DB()
 message_queue = MessageQueue()
 
-PRIVATE_KEY = PrivateKey.generate()
-PUBLIC_KEY = PRIVATE_KEY.public_key
 print("PUBLIC KEY", PUBLIC_KEY.__bytes__())
-
-
-def get_json_dict(request) -> dict:
-    data = request.get_data()
-    return unpack_obj(data=data, sk=PRIVATE_KEY)
 
 
 @app.route("/public-key", methods=['GET'])
@@ -37,20 +30,6 @@ def get_public_key():
         "encoding": "base64"}
     # print(response)
     return response
-
-
-@app.route("/hello", methods=['POST'])
-def hi():
-    body = request.get_data()
-    print(body.decode())
-    return "ok"
-
-
-# @app.route("/message-broadcast", methods=['POST'])
-# def message_broadcast():
-#     message = request.get_json()
-#     db.mail_repo.add_message(recv_pub_k=message[Field.to_pub_k], message=message[Field.body])
-#     return "OK", 200
 
 
 @app.route("/message", methods=['POST'])
@@ -72,11 +51,7 @@ def message():
 
 
 def send_to_next_node(message):
-    message_queue.append_message(Message(url=message[Field.to], data=message[Field.body]))
-
-
-def print_response(r):
-    print(f"Redirected. {r.text}")
+    message_queue.append_message(MessageTask(url=message[Field.to], data=message[Field.body]))
 
 
 def send_broadcast(message):
@@ -84,15 +59,24 @@ def send_broadcast(message):
     message[Field.type] = "broadcast"
     for server in get_all_servers():
         encrypted = pack_obj(message, mixers_pub_keys[server])  # Зашифровали для получателя
-        message_queue.append_message(Message(url=server + "/message", data=encrypted))
+        message_queue.append_message(MessageTask(url=server + "/message", data=encrypted))
     print("sent broadcast", message)
 
 
 @app.route("/messages", methods=['GET'])
 def get_all_messages():
     message = get_json_dict(request)
+    print("GETTING UPDATES")
+    print(message)
     pub_k = message[Field.sender_public_key]
-    return pack_obj({"messages": db.mail_repo.get_messages_by_recv_pub_k(pub_k)}, pub_k=unpack_pub_k(pub_k))
+    return pack_obj({"messages": 1}, pub_k=unpack_pub_k(pub_k))
+
+
+# def get_updates_for_user(pub_k: str, last_message_time: str, existing_messages_hash):
+#     all_messages = db.mail_repo.get_messages_by_recv_pub_k(pub_k)
+#     # TODO найти последнее и хэщ префикса, если они совпадают с присланными, то отправить только новые.
+#     last_message = all_messages.order_by(.timestamp.desc()).first()
+#     return res
 
 
 @app.route("/user", methods=['POST'])
@@ -103,7 +87,7 @@ def register_new_user():
     success = db.user_repo.add_user(pub_k, nickname)
     if success:
         for server in get_all_servers():
-            message_queue.append_message(Message(url=server + "/user", data=message_obj))
+            message_queue.append_message(MessageTask(url=server + "/user", data=message_obj))
     return "OK", 200
 
 

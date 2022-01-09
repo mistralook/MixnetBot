@@ -1,6 +1,6 @@
 import base64
 import json
-
+import hashlib
 from nacl import encoding
 
 from nacl.public import PublicKey, SealedBox, PrivateKey
@@ -52,6 +52,12 @@ def unpack_obj(data: str, sk: PrivateKey) -> dict:
     box = SealedBox(sk)
     r_str = box.decrypt(b).decode()
     return json.loads(r_str)
+
+
+def get_hash_of_uids(uids):
+    s = "".join(map(str, uids))
+    hash_object = hashlib.sha256(s.encode())
+    return hash_object.hexdigest()
 
 
 if __name__ == '__main__':

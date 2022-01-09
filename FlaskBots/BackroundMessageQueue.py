@@ -6,7 +6,7 @@ import time
 from Protocol.FieldType import Field
 
 
-class Message:
+class MessageTask:
     def __init__(self, url: str, data):
         self.url = url
         self.data = data
@@ -28,7 +28,7 @@ class MessageQueue:
                 junk_mes = {Field.to: None,
                             Field.body: "J" * random.randrange(0, 100)}
                 receiver = servers[random.randrange(0, len(servers))] + "/message"
-                self.append_message(Message(url=receiver, data=junk_mes))
+                self.append_message(MessageTask(url=receiver, data=junk_mes))
 
     def send_mixed(self):
         while True:
@@ -39,5 +39,5 @@ class MessageQueue:
                 message.send()
             self.messages.clear()
 
-    def append_message(self, mes: Message):
+    def append_message(self, mes: MessageTask):
         self.messages.append(mes)

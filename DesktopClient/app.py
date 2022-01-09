@@ -88,7 +88,7 @@ class MixerMessenger:
 
     def background_update(self):
         while True:
-            updated_chats = get_updates()
+            updated_chats, _ = get_updates()
             self.add_new_chats_from_updates(updated_chats)
             cur_chat = self.chats_scroll_cell.get()
             if cur_chat in updated_chats:
