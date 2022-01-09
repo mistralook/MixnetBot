@@ -92,7 +92,7 @@ def register_new_user():
 
 
 if __name__ == '__main__':
-    thread = Thread(target=message_queue.send_mixed)
+    thread = Thread(target=message_queue.send_mixed, daemon=True)
     thread.start()
     parser = argparse.ArgumentParser()
     parser.add_argument("--xport", dest="xport", default=5000, type=int)

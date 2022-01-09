@@ -79,7 +79,7 @@ class MixerMessenger:
 
     def start_background_updating(self):
         # return
-        operation_thread = threading.Thread(target=self.background_update)
+        operation_thread = threading.Thread(target=self.background_update, daemon=True)
         operation_thread.start()
 
     def add_new_chats_from_updates(self, updated_chats):
