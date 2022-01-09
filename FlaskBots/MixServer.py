@@ -10,8 +10,9 @@ from FlaskBots.BackroundMessageQueue import MessageQueue, MessageTask
 from FlaskBots.Network import get_all_servers
 from FlaskBots.db.DB import DB
 from Protocol.FieldType import Field
+from Protocol.UpdateRequest import UpdateReq
 from utils.coding import pack_k, unpack_obj, pack_obj, unpack_pub_k
-from Domain import PUBLIC_KEY, PRIVATE_KEY, get_json_dict
+from Domain import PUBLIC_KEY, PRIVATE_KEY, get_json_dict, get_updates_for_user
 
 app = Flask(__name__)
 db = DB()
@@ -65,19 +66,13 @@ def send_broadcast(message):
 
 @app.route("/messages", methods=['GET'])
 def get_all_messages():
-    message = get_json_dict(request)
-    print("GETTING UPDATES")
-    print(message)
-    pub_k = message[Field.sender_public_key]
-    return pack_obj({"messages": [r.text for r in db.mail_repo.get_messages_by_recv_pub_k(pub_k)]},
-                    pub_k=unpack_pub_k(pub_k))
-
-
-# def get_updates_for_user(pub_k: str, last_message_time: str, existing_messages_hash):
-#     all_messages = db.mail_repo.get_messages_by_recv_pub_k(pub_k)
-#     # TODO найти последнее и хэщ префикса, если они совпадают с присланными, то отправить только новые.
-#     last_message = all_messages.order_by(.timestamp.desc()).first()
-#     return res
+    update_request = get_json_dict(request)
+    print("GETTING UPDATES", update_request)
+    updates = get_updates_for_user(update_request, db)
+    client_pub_k = update_request[UpdateReq.sender_public_key]
+    return pack_obj(updates, pub_k=unpack_pub_k(client_pub_k))
+    # return pack_obj({"messages": [r.text for r in db.mail_repo.get_messages_by_recv_pub_k(pub_k)]},
+    #                 pub_k=unpack_pub_k(pub_k))
 
 
 @app.route("/user", methods=['POST'])

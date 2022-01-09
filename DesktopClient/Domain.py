@@ -4,11 +4,12 @@ import sys
 import requests
 
 from Keys import get_keys, get_keys_f
+from Protocol.UpdateRequest import UpdateReq
 from db.MailRepository import MailRepository
 from utils.coding import base64_str_to_public_key, unpack_obj, pack_k, pack_obj
 
 sys.path.append('../')
-from Protocol.FieldType import Field, UpdateReq
+from Protocol.FieldType import Field
 from multiple_encryption import multiple_encrypt, get_pub_keys
 from FlaskBots.Network import get_all_servers
 

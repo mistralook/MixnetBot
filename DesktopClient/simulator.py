@@ -14,7 +14,7 @@ from Domain import send
 recv_keys = get_keys_f()
 public_key = recv_keys.public_key
 private_key = recv_keys.private_key
-send(public_key, "RR!")
+send(public_key, "Hello!")
 
 # time.sleep(3)
 #

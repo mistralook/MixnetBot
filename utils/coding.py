@@ -55,7 +55,7 @@ def unpack_obj(data: str, sk: PrivateKey) -> dict:
 
 
 def get_hash_of_uids(uids):
-    s = "".join(map(str, uids))
+    s = "".join(map(str, sorted(uids)))
     hash_object = hashlib.sha256(s.encode())
     return hash_object.hexdigest()
 

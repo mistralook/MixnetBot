@@ -5,6 +5,7 @@ import py_cui
 
 from Domain import send, get_updates, get_messages_by_pub_k
 from Keys import generate_and_save_keys
+from coding import unpack_pub_k
 
 
 class MixerMessenger:
@@ -44,7 +45,7 @@ class MixerMessenger:
         if not cur_receiver:
             self.master.show_warning_popup("Warning", "Select receiver from 'Chats' menu")
             return
-        send(recv_pub_k=cur_receiver, message=message)
+        send(recv_pub_k=unpack_pub_k(cur_receiver), message=message)
         self.chat_cell.add_item(message)
         self.input.clear()
 
