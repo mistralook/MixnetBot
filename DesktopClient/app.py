@@ -2,10 +2,12 @@ import threading
 import time
 
 import py_cui
+import sys
 
-from Domain import send, get_updates, get_messages_by_pub_k
+sys.path.append('../')
+from Domain import send, get_updates, get_messages_by_pub_k, get_all_chats
 from Keys import generate_and_save_keys
-from coding import unpack_pub_k
+from utils.coding import unpack_pub_k
 
 
 class MixerMessenger:
@@ -17,13 +19,17 @@ class MixerMessenger:
         self.chat_cell = self.master.add_scroll_menu("Messages", 0, 1, 5, 5)
         self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_add_pub_k_text_box)
         self.generate_keys_btn = self.master.add_button("Generate keys", 6, 0, command=self.show_name_text_box)
-        # self.get_updates_btn = self.master.add_button("Get updates", 7, 0, command=self.get_updates)
         self.input = self.master.add_text_box("Your input", 5, 1, 1, 5)
 
         self.chats_scroll_cell.add_key_command(py_cui.keys.KEY_ENTER, self.show_chat)
         self.input.add_key_command(py_cui.keys.KEY_ENTER, self.send_message)
         self.start_background_updating()
         self.chats = []
+        self.fill_chats_cell()
+
+    def fill_chats_cell(self):
+        self.chats = get_all_chats()
+        self.chats_scroll_cell._view_items = self.chats
 
     def show_chat(self):
         self.chat_cell.clear()
@@ -33,6 +39,7 @@ class MixerMessenger:
             return
         self.chat_cell.set_title(f"Chat with: {cur_receiver}")
         self.update_chat(cur_receiver)
+        self.chat_cell._jump_to_bottom(self.chat_cell.get_viewport_height())
 
     def update_chat(self, sender_pub_k):
         self.chat_cell.clear()
@@ -88,14 +95,17 @@ class MixerMessenger:
         self.chats_scroll_cell._view_items = self.chats
 
     def background_update(self):
+        i=0
         while True:
             updated_chats, _ = get_updates()
             self.add_new_chats_from_updates(updated_chats)
             cur_chat = self.chats_scroll_cell.get()
-            if cur_chat in updated_chats:
-                self.update_chat(cur_chat)
+            # if cur_chat in updated_chats:
+                # self.show_chat()
+                # self.update_chat(cur_chat)
 
             time.sleep(1)
+            # self.show_chat()
 
 
 # Create the CUI, pass it to the wrapper object, and start it

@@ -2,8 +2,13 @@ import datetime
 
 from dateutil import parser
 from peewee import *
+import sys
 
-from coding import get_hash_of_uids
+from utils.coding import get_hash_of_uids
+
+sys.path.append('../')
+
+
 
 conn = SqliteDatabase('db/mails.sqlite')
 conn.connect()
@@ -57,3 +62,6 @@ class MailRepository:
     def get_all_messages_hash(self):
         uids = [m.uid for m in Message.select()]
         return get_hash_of_uids(uids)
+
+    def get_all_senders(self):
+        return set(m.sender_pub_k for m in Message.select())

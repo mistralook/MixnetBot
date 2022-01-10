@@ -1,3 +1,5 @@
+import time
+
 from DesktopClient.Keys import get_keys_f
 from Domain import send
 
@@ -14,8 +16,10 @@ from Domain import send
 recv_keys = get_keys_f()
 public_key = recv_keys.public_key
 private_key = recv_keys.private_key
-send(public_key, "Hello!")
-
+# send(public_key, f"Hi! {17}")
+for i in range(1500):
+    send(public_key, f"S! {i}")
+    time.sleep(1)
 # time.sleep(3)
 #
 # server = get_all_servers()[0]
