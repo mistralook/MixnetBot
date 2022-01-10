@@ -1,9 +1,10 @@
 import json
 
+
 from nacl.public import PrivateKey, PublicKey, Box
 import os.path
-
-
+import sys
+sys.path.append('../')
 from utils.coding import pack_k, unpack_pub_k, unpack_priv_k
 
 name = "keys.json"

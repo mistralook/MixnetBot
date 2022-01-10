@@ -66,3 +66,7 @@ def get_update_request_message():
 
 def get_messages_by_pub_k(sender_pub_k):
     return [m.text for m in mail_repo.get_messages_by_sender_pub_k(sender_pub_k)]
+
+
+def get_all_chats():
+    return mail_repo.get_all_senders()
