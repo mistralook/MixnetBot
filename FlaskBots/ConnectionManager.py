@@ -24,7 +24,6 @@ class ConnectionManager:
         thread = Thread(target=self.background_updater, daemon=True)
         thread.start()
         time.sleep(3)
-        print("CON MAN STARTED")
         return self
 
     def background_updater(self):

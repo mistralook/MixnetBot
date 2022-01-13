@@ -6,7 +6,7 @@ import sys
 
 sys.path.append('../')
 from Domain import send, get_updates, get_messages_by_pub_k, get_all_chats
-from Keys import generate_and_save_keys
+from Keys import generate_and_save_keys, get_keys_f, get_keys
 from utils.coding import unpack_pub_k
 
 
@@ -19,6 +19,7 @@ class MixerMessenger:
         self.chat_cell = self.master.add_scroll_menu("Messages", 0, 1, 5, 5)
         self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_add_pub_k_text_box)
         self.generate_keys_btn = self.master.add_button("Generate keys", 6, 0, command=self.show_name_text_box)
+        self.show_keys_btn = self.master.add_button("Show keys", 7, 0, command=self.show_keys)
         self.input = self.master.add_text_box("Your input", 5, 1, 1, 5)
 
         self.chats_scroll_cell.add_key_command(py_cui.keys.KEY_ENTER, self.show_chat)
@@ -66,8 +67,14 @@ class MixerMessenger:
     def show_name_text_box(self):
         self.master.show_text_box_popup('Please enter your name', self.register_and_generate_keys)
 
+    def show_keys(self):
+        try:
+            text = get_keys()["public_key"]
+        except FileNotFoundError:
+            text = "Keys are not generated"
+        self.master.show_message_popup("PUBLIC KEY", text)
+
     def quit_cui(self, to_quit):
-        # THis is the function given to the yes no popup. The to_quit parameter will be True if y is pressed, or False if n is pressed
         if to_quit:
             exit()
         else:

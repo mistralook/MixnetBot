@@ -6,7 +6,7 @@ import time
 import requests
 
 from FlaskBots.ConnectionManager import ConnectionManager
-from Keys import get_keys_f
+from Keys import get_keys_f, generate_and_save_keys
 from Protocol.UpdateRequest import UpdateReq
 from db.MailRepository import MailRepository
 from utils.coding import base64_str_to_public_key, unpack_obj, pack_k, pack_obj, unpack_str, unpack_pub_k
@@ -19,6 +19,10 @@ from FlaskBots.Network import get_all_servers
 mail_repo = MailRepository()
 conn_manager = ConnectionManager(False).start()
 time.sleep(2)
+try:
+    generate_and_save_keys("User")
+except:
+    pass
 keys = get_keys_f()
 
 

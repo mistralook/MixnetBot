@@ -18,10 +18,6 @@ class Keys:
 
 def generate_and_save_keys(nickname, force=False):
     private = PrivateKey.generate()
-    # print("GENERATING") TODO Delete
-    # print(private)
-    # print(private.public_key)
-    # print("================")
     keys = {"private_key": pack_k(private),
             "public_key": pack_k(private.public_key),
             "nickname": nickname}
@@ -43,10 +39,3 @@ def get_keys_f():
     keys = get_keys()
     return Keys(sk=unpack_priv_k(keys["private_key"]),
                 pk=unpack_pub_k(keys["public_key"]))
-
-# TODO delete
-# generate_and_save_keys("Lol", force=True)
-# keys = get_keys_f()
-#
-# print(keys.private_key)
-# print(keys.public_key)
