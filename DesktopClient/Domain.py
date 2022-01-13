@@ -1,4 +1,5 @@
 import json
+import random
 import sys
 import time
 
@@ -18,6 +19,7 @@ from FlaskBots.Network import get_all_servers
 mail_repo = MailRepository()
 conn_manager = ConnectionManager(False).start()
 time.sleep(2)
+keys = get_keys_f()
 
 
 def build_route(recv_pub_k):
@@ -35,11 +37,21 @@ def send(recv_pub_k, message: str):
 
 
 def get_updates():
-    server = conn_manager.get_online_servers()[0]
-    keys = get_keys_f()
-    message = get_update_request_message()
-    response = requests.get(url=f"{server.addr}/messages", data=pack_obj(message, server.pub_k))
-    d = unpack_obj(data=response.text, sk=keys.private_key)
+    server = random.choice(conn_manager.get_online_servers())
+
+    upd_request = get_update_request_message()
+    try:
+        response = requests.get(url=f"{server.addr}/messages", data=pack_obj(upd_request, server.pub_k))
+        return parse_updates(response)
+    except requests.exceptions.RequestException:
+        return [], []
+
+
+def parse_updates(response):
+    try:
+        d = unpack_obj(data=response.text, sk=keys.private_key)
+    except:
+        raise Exception(response.text)
     senders = set()
     messages = []
     for m in d["messages"]:
@@ -52,11 +64,10 @@ def get_updates():
                               unp[Field.uid])
         senders.add(unp[Field.sender_pub_k])
         messages.append(unp[Field.body])
-    return senders, messages
+    return list(senders), messages
 
 
 def get_update_request_message():
-    keys = get_keys_f()
     return {UpdateReq.sender_public_key: pack_k(keys.public_key),
             UpdateReq.last_message_time: mail_repo.get_last_message_time(),
             UpdateReq.all_message_hash: mail_repo.get_all_messages_hash()}

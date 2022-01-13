@@ -22,6 +22,11 @@ message_queue = MessageQueue(connection_manager)
 
 print("PUBLIC KEY", PUBLIC_KEY.__bytes__())
 
+# import logging
+#
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
+
 
 @app.route("/public-key", methods=['GET'])
 def get_public_key():

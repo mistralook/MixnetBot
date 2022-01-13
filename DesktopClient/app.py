@@ -95,14 +95,12 @@ class MixerMessenger:
         self.chats_scroll_cell._view_items = self.chats
 
     def background_update(self):
-        i=0
         while True:
             updated_chats, _ = get_updates()
             self.add_new_chats_from_updates(updated_chats)
             cur_chat = self.chats_scroll_cell.get()
-            # if cur_chat in updated_chats:
-                # self.show_chat()
-                # self.update_chat(cur_chat)
+            if cur_chat in updated_chats:
+                self.show_chat()
 
             time.sleep(1)
             # self.show_chat()

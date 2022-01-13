@@ -60,7 +60,7 @@ class ConnectionManager:
 def is_online(last_online_dt):
     now = datetime.datetime.now()
     delta = now - last_online_dt
-    return delta.total_seconds() < 5
+    return delta.total_seconds() < 10
 
 
 class ConnectionInfo:
@@ -75,6 +75,4 @@ class ConnectionInfo:
         return self.__str__()
 
     def is_online(self):
-        now = datetime.datetime.now()
-        delta = now - self.last_online_dt
-        return delta.total_seconds() < 5
+        return is_online(self.last_online_dt)

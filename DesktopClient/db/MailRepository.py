@@ -64,4 +64,4 @@ class MailRepository:
         return get_hash_of_uids(uids)
 
     def get_all_senders(self):
-        return set(m.sender_pub_k for m in Message.select())
+        return list(set(m.sender_pub_k for m in Message.select()))
