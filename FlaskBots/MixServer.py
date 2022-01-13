@@ -7,6 +7,7 @@ from flask import request
 
 from DesktopClient.multiple_encryption import get_pub_keys
 from FlaskBots.BackroundMessageQueue import MessageQueue, MessageTask
+from FlaskBots.ConnectionManager import ConnectionManager
 from FlaskBots.Network import get_all_servers
 from FlaskBots.db.DB import DB
 from Protocol.FieldType import Field
@@ -16,7 +17,9 @@ from Domain import PUBLIC_KEY, PRIVATE_KEY, get_json_dict, get_updates_for_user
 
 app = Flask(__name__)
 db = DB()
-message_queue = MessageQueue()
+connection_manager = ConnectionManager()
+message_queue = MessageQueue(connection_manager)
+
 
 print("PUBLIC KEY", PUBLIC_KEY.__bytes__())
 
@@ -56,7 +59,7 @@ def send_to_next_node(message):
 
 
 def send_broadcast(message):
-    mixers_pub_keys = get_pub_keys()
+    mixers_pub_keys = connection_manager.get_all_servers()
     message[Field.type] = "broadcast"
     for server in get_all_servers():
         encrypted = pack_obj(message, mixers_pub_keys[server])  # Зашифровали для получателя
@@ -88,8 +91,9 @@ def register_new_user():
 
 
 if __name__ == '__main__':
-    thread = Thread(target=message_queue.send_mixed, daemon=True)
-    thread.start()
+    q_thread = Thread(target=message_queue.send_mixed, daemon=True)
+    q_thread.start()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--xport", dest="xport", default=5000, type=int)
     args = parser.parse_args()
