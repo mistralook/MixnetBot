@@ -1,12 +1,14 @@
 import json
 import sys
+import time
 
 import requests
 
-from Keys import get_keys, get_keys_f
+from FlaskBots.ConnectionManager import ConnectionManager
+from Keys import get_keys_f
 from Protocol.UpdateRequest import UpdateReq
 from db.MailRepository import MailRepository
-from utils.coding import base64_str_to_public_key, unpack_obj, pack_k, pack_obj
+from utils.coding import unpack_obj, pack_k, pack_obj
 
 sys.path.append('../')
 from Protocol.FieldType import Field
@@ -14,10 +16,12 @@ from multiple_encryption import multiple_encrypt, get_pub_keys
 from FlaskBots.Network import get_all_servers
 
 mail_repo = MailRepository()
+conn_manager = ConnectionManager().start()
+time.sleep(2)
 
 
 def build_route(recv_pub_k):
-    return 1 * get_all_servers() + [recv_pub_k]
+    return conn_manager.get_online_servers() + [recv_pub_k]
 
 
 # def get_pub_keys():
@@ -39,8 +43,8 @@ def send(recv_pub_k, message: str):
 
 
 def get_updates():
-    server = get_all_servers()[0]
-    server_pub_k = get_pub_keys()[server]  # TODO доставать из локального хранилища
+    server = conn_manager.get_online_servers()[0]
+    server_pub_k = conn_manager.get_server_pub_k(server)
     keys = get_keys_f()
     message = get_update_request_message()
     response = requests.get(url=f"{server}/messages", data=pack_obj(message, server_pub_k))
