@@ -20,12 +20,12 @@ from Domain import send, get_update_request_message
 from Network import get_all_servers
 from Protocol.FieldType import Field
 from Protocol.UpdateRequest import UpdateReq
-from utils.coding import unpack_obj, pack_k, pack_obj
+from utils.coding import unpack_obj, pack_k, pack_obj, unpack_str
 
 recv_keys = get_keys_f()
 public_key = recv_keys.public_key
 private_key = recv_keys.private_key
-send(public_key, f"WWW")
+send(public_key, f"Hello Mark")
 # for i in range(1500):
 #     send(public_key, f"S! {i}")
 #     time.sleep(1)
@@ -46,6 +46,14 @@ for m in d["messages"]:
     encrypted = json.loads(m)
     print(encrypted)
     unp = unpack_obj(encrypted[Field.body], private_key)
+    print("UNP")
+    print(unp)
+
+    encrypted_body = unp[Field.body]
+    print("ENC BODY")
+    print(encrypted_body)
+    print("REAL MES: ", unpack_str(unp[Field.body], keys.private_key, keys.public_key))
+
     sender = unp[Field.sender_pub_k]
     print(sender)
     print(unp)
