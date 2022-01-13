@@ -8,7 +8,8 @@ from FlaskBots.ConnectionManager import ConnectionManager
 from Keys import get_keys_f
 from Protocol.UpdateRequest import UpdateReq
 from db.MailRepository import MailRepository
-from utils.coding import unpack_obj, pack_k, pack_obj
+from utils.coding import base64_str_to_public_key, unpack_obj, pack_k, pack_obj, unpack_str, unpack_pub_k
+
 
 sys.path.append('../')
 from Protocol.FieldType import Field
@@ -54,7 +55,10 @@ def get_updates():
     for m in d["messages"]:
         encrypted = json.loads(m)
         unp = unpack_obj(encrypted[Field.body], keys.private_key)
-        mail_repo.add_message(unp[Field.sender_pub_k], unp[Field.body], unp[Field.timestamp],
+        sender_pub_k = unpack_pub_k(unp[Field.sender_pub_k])
+        # TODO Если упало с ошибкой, то сообщение - подделка
+        mes = unpack_str(unp[Field.body], keys.private_key, sender_pub_k)
+        mail_repo.add_message(unp[Field.sender_pub_k], mes, unp[Field.timestamp],
                               unp[Field.uid])
         senders.add(unp[Field.sender_pub_k])
         messages.append(unp[Field.body])

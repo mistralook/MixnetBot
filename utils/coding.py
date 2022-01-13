@@ -3,7 +3,7 @@ import json
 import hashlib
 from nacl import encoding
 
-from nacl.public import PublicKey, SealedBox, PrivateKey
+from nacl.public import PublicKey, SealedBox, PrivateKey, Box
 
 
 def bytes_to_b64(cypher_key: bytes):
@@ -60,9 +60,36 @@ def get_hash_of_uids(uids):
     return hash_object.hexdigest()
 
 
+def pack_str(s: str, priv_k, pub_k: PublicKey) -> str:
+    box = Box(priv_k, pub_k)
+    data = json.dumps(s).encode()
+    b = box.encrypt(data)
+    return str(base64.b64encode(b))
+
+
+def unpack_str(data: str, sk: PrivateKey, pk) -> str:
+    b = base64.b64decode(data[2:-1])
+    box = Box(sk, pk)
+    r_str = box.decrypt(b).decode()
+    return json.loads(r_str)
+
+
 if __name__ == '__main__':
     PRIVATE_KEY = PrivateKey.generate()
     PUBLIC_KEY = PRIVATE_KEY.public_key
-    d = {"1": "ab"}
-    print(pack_obj(d, PUBLIC_KEY))
+    # d = {"1": "ab"}
+    # print(pack_obj(d, PUBLIC_KEY))
     # print(unpack_obj(pack_obj(d, PUBLIC_KEY), PRIVATE_KEY))
+    s = "Hi M4ark"
+    packed = pack_str(s, PRIVATE_KEY, PUBLIC_KEY)
+    print("PACKED", packed)
+    unpacked = unpack_str(packed, PRIVATE_KEY, PUBLIC_KEY)
+    print(unpacked)
+    print(type(unpacked))
+    # print(bytes(s.encode()).decode())
+    # print(bytes(s.encode()).decode())
+    #
+    # x = bytes(b"\xf0\x9f\x8d\x95")
+    # print(type(x))
+    # print(x.decode())
+    # r = """b'\xf0\x9f\x8d\x95''"""

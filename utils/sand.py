@@ -1,43 +1,34 @@
 import base64
 import json
-import pickle
 
-import requests
-from nacl.public import PrivateKey, PublicKey, SealedBox
-
-from utils.coding import bytes_to_b64, base64_str_to_public_key, pack_obj, unpack_obj
-
-#
-# def pack_pub_k(key: PublicKey):
-#     s = base64.b64encode(key.__bytes__())
-#     s = str(s)
-#     return s
-#
-#
-# def unpack_pub_k(s: str):
-#     bytes_s = base64.b64decode(s[2:-1])
-#     return PrivateKey(bytes_s)
-#
-#
-PRIVATE_KEY = PrivateKey.generate()
-
-PUBLIC_KEY = PRIVATE_KEY.public_key
+from nacl.public import SealedBox, PrivateKey, PublicKey, Box
 
 
+def pack_str(s: str, priv_k, pub_k: PublicKey) -> str:
+    box = Box(priv_k, pub_k)
+    data = json.dumps(s).encode()
+    b = box.encrypt(data)
+    return str(base64.b64encode(b))
 
 
+def unpack_str(data: str, sk: PrivateKey, pk) -> str:
+    b = base64.b64decode(data[2:-1])
+    box = Box(sk, pk)
+    r_str = box.decrypt(b).decode()
+    return json.loads(r_str)
 
-d = {"1": "ab"}
-# bad_bytes = pack_obj(d, PUBLIC_KEY)
-# print("BAD", bad_bytes)
-# # bad_bytes.decode()
-# e = base64.b64encode(bad_bytes)
-# transporting = str(e)
-# print(e)
-# restored_bad = base64.b64decode(transporting[2:-1])
-# print(restored_bad == bad_bytes)
-# print(type(e))
-packed = pack_obj(d, PUBLIC_KEY)
+
+d = "Hi mark"
+a_sk = PrivateKey.generate()
+a_pk = a_sk.public_key
+
+b_sk = PrivateKey.generate()
+b_pk = b_sk.public_key
+
+packed = pack_str(d, a_sk, b_pk)
 print(packed)
-PRIVATE_KEY = PrivateKey.generate()
-print(unpack_obj(packed, PRIVATE_KEY))
+print(type(packed))
+unpacked = unpack_str(packed, b_sk, a_pk)
+
+print(unpacked)
+print(type(unpacked))

@@ -4,11 +4,11 @@ import uuid
 
 import requests
 from datetime import datetime
-from nacl.public import SealedBox
+from nacl.public import SealedBox, Box
 
-from DesktopClient.Keys import get_keys
+from DesktopClient.Keys import get_keys, get_keys_f
 from FlaskBots.Network import get_all_servers
-from utils.coding import base64_str_to_public_key, bytes_to_b64, unpack_pub_k, pack_obj, pack_k
+from utils.coding import base64_str_to_public_key, bytes_to_b64, unpack_pub_k, pack_obj, pack_k, pack_str
 
 sys.path.append('../')
 from Protocol.FieldType import Field
@@ -24,16 +24,18 @@ def get_pub_keys():
 
 def multiple_encrypt(message_from_user: str, route: list):
     node_pub_keys = get_pub_keys()
-    receiver_pub_k = pack_k(route[-1])
+    receiver_pub_k = route[-1]
+    packed_receiver_pub_k = pack_k(receiver_pub_k)
     node_pub_keys[route[-1]] = route[-1]
     sending_time = datetime.utcnow().isoformat()
     rev = list(reversed(route))  # сначала получатель, потом конечный миксер, ..., 1-й миксер
     cypher_count = 0
-    obj = {Field.body: message_from_user,
+    keys = get_keys_f()
+    obj = {Field.body: pack_str(message_from_user, keys.private_key, receiver_pub_k),
            Field.to: None,
            Field.timestamp: sending_time,
            Field.uid: uuid.uuid4().int,
-           Field.sender_pub_k: get_keys()["public_key"],
+           Field.sender_pub_k: pack_k(keys.public_key),
            Field.cypher_count: cypher_count
            }
     print("ROUTE", route)
@@ -44,7 +46,7 @@ def multiple_encrypt(message_from_user: str, route: list):
         obj = {
             Field.body: obj,
             Field.to: f"{node}/message" if not first_wrapped else None,
-            Field.to_pub_k: receiver_pub_k if first_wrapped else None,
+            Field.to_pub_k: packed_receiver_pub_k if first_wrapped else None,
             Field.cypher_count: cypher_count
         }
         if first_wrapped: obj[Field.timestamp] = sending_time
