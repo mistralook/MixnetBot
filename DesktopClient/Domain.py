@@ -37,8 +37,10 @@ def send(recv_pub_k, message: str):
 
 
 def get_updates():
-    server = random.choice(conn_manager.get_online_servers())
-
+    try:
+        server = random.choice(conn_manager.get_online_servers())
+    except RuntimeError:  # all offline
+        return [], []
     upd_request = get_update_request_message()
     try:
         response = requests.get(url=f"{server.addr}/messages", data=pack_obj(upd_request, server.pub_k))
@@ -51,7 +53,8 @@ def parse_updates(response):
     try:
         d = unpack_obj(data=response.text, sk=keys.private_key)
     except:
-        raise Exception(response.text)
+        return [], []
+        # raise Exception(response.text)
     senders = set()
     messages = []
     for m in d["messages"]:

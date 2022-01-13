@@ -27,8 +27,10 @@ public_key = recv_keys.public_key
 private_key = recv_keys.private_key
 conn_manager = send(public_key, f"7Hello Mark")
 for i in range(1500):
-    send(public_key, f"S! {i}")
-    time.sleep(1)
+    mes = f"T! {i}"
+    send(public_key, mes)
+    print("SENT", mes)
+    time.sleep(3)
 # #
 # server = get_all_servers()[1]
 # server_pub_k = get_pub_keys([server], conn_manager)[server]

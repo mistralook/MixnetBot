@@ -103,6 +103,7 @@ class MixerMessenger:
                 self.show_chat()
 
             time.sleep(1)
+
             # self.show_chat()
 
 

@@ -42,7 +42,7 @@ class ConnectionManager:
     def get_online_servers(self):
         res = [s for s in self.get_all_servers() if is_online(s.last_online_dt)]
         if not res:
-            raise Exception(f"All servers are offline: {self.get_all_servers()}")
+            raise RuntimeError(f"All servers are offline: {self.get_all_servers()}")
         return res
 
     def get_server_pub_k(self, server):
