@@ -14,16 +14,16 @@ sys.path.append('../')
 from Protocol.FieldType import Field
 
 
-def get_pub_keys():
-    pub_key_by_mixer_addr = {}  # key - addr, value - PubKey(from pyNacl)
-    for mixer in get_all_servers():
-        response = requests.get(f"{mixer}/public-key")
-        pub_key_by_mixer_addr[mixer] = unpack_pub_k(response.json()['public_key'])
-    return pub_key_by_mixer_addr
+# def get_pub_keys():
+#     pub_key_by_mixer_addr = {}  # key - addr, value - PubKey(from pyNacl)
+#     for mixer in get_all_servers():
+#         response = requests.get(f"{mixer}/public-key")
+#         pub_key_by_mixer_addr[mixer] = unpack_pub_k(response.json()['public_key'])
+#     return pub_key_by_mixer_addr
 
 
-def multiple_encrypt(message_from_user: str, route: list):
-    node_pub_keys = get_pub_keys()
+def multiple_encrypt(message_from_user: str, route: list, conn_manager):
+    node_pub_keys = get_pub_keys(route[:-1], conn_manager)
     receiver_pub_k = route[-1]
     packed_receiver_pub_k = pack_k(receiver_pub_k)
     node_pub_keys[route[-1]] = route[-1]
@@ -53,3 +53,10 @@ def multiple_encrypt(message_from_user: str, route: list):
         first_wrapped = False
     print(obj)
     return obj
+
+
+def get_pub_keys(mixers, conn_manager):
+    res = {}
+    for m in mixers:
+        res[m] = conn_manager.get_server_pub_k(m)
+    return res

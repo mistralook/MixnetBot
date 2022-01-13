@@ -17,9 +17,8 @@ from Domain import PUBLIC_KEY, PRIVATE_KEY, get_json_dict, get_updates_for_user
 
 app = Flask(__name__)
 db = DB()
-connection_manager = ConnectionManager()
+connection_manager = ConnectionManager(is_server=True).start()
 message_queue = MessageQueue(connection_manager)
-
 
 print("PUBLIC KEY", PUBLIC_KEY.__bytes__())
 
@@ -59,11 +58,10 @@ def send_to_next_node(message):
 
 
 def send_broadcast(message):
-    mixers_pub_keys = connection_manager.get_all_servers()
     message[Field.type] = "broadcast"
-    for server in get_all_servers():
-        encrypted = pack_obj(message, mixers_pub_keys[server])  # Зашифровали для получателя
-        message_queue.append_message(MessageTask(url=server + "/message", data=encrypted))
+    for mixer in connection_manager.get_online_servers():
+        encrypted = pack_obj(message, mixer.pub_k)  # Зашифровали для получателя
+        message_queue.append_message(MessageTask(url=mixer.addr + "/message", data=encrypted))
     print("sent broadcast", message)
 
 

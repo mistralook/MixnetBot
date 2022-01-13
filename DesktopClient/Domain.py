@@ -10,45 +10,35 @@ from Protocol.UpdateRequest import UpdateReq
 from db.MailRepository import MailRepository
 from utils.coding import base64_str_to_public_key, unpack_obj, pack_k, pack_obj, unpack_str, unpack_pub_k
 
-
 sys.path.append('../')
 from Protocol.FieldType import Field
 from multiple_encryption import multiple_encrypt, get_pub_keys
 from FlaskBots.Network import get_all_servers
 
 mail_repo = MailRepository()
-conn_manager = ConnectionManager().start()
+conn_manager = ConnectionManager(False).start()
 time.sleep(2)
 
 
 def build_route(recv_pub_k):
-    return conn_manager.get_online_servers() + [recv_pub_k]
-
-
-# def get_pub_keys():
-#     pub_key_by_mixer_addr = {}  # key - addr, value - PubKey(from pyNacl)
-#     for mixer in get_all_servers():
-#         response = requests.get(f"{mixer}/public-key")
-#         pub_key = base64_str_to_public_key(response.json()['public_key'])
-#         pub_key_by_mixer_addr[mixer] = pub_key
-#     return pub_key_by_mixer_addr
+    return [s.addr for s in conn_manager.get_online_servers()] + [recv_pub_k]
 
 
 def send(recv_pub_k, message: str):
     route = build_route(recv_pub_k)
-    onion_encrypted = multiple_encrypt(message, route)
+    onion_encrypted = multiple_encrypt(message, route, conn_manager)
     first_node = onion_encrypted[Field.to]
     data = onion_encrypted[Field.body]
     print("sent", data)
     requests.post(url=first_node, data=data)
+    return conn_manager  # TODO DELETE
 
 
 def get_updates():
     server = conn_manager.get_online_servers()[0]
-    server_pub_k = conn_manager.get_server_pub_k(server)
     keys = get_keys_f()
     message = get_update_request_message()
-    response = requests.get(url=f"{server}/messages", data=pack_obj(message, server_pub_k))
+    response = requests.get(url=f"{server.addr}/messages", data=pack_obj(message, server.pub_k))
     d = unpack_obj(data=response.text, sk=keys.private_key)
     senders = set()
     messages = []

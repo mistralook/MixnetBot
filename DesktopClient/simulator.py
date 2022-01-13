@@ -17,7 +17,7 @@ from Domain import send, get_update_request_message
 # print(private_key)
 # print("-------------")
 # print(public_key)
-from Network import get_all_servers
+from FlaskBots.Network import get_all_servers
 from Protocol.FieldType import Field
 from Protocol.UpdateRequest import UpdateReq
 from utils.coding import unpack_obj, pack_k, pack_obj, unpack_str
@@ -25,14 +25,14 @@ from utils.coding import unpack_obj, pack_k, pack_obj, unpack_str
 recv_keys = get_keys_f()
 public_key = recv_keys.public_key
 private_key = recv_keys.private_key
-send(public_key, f"Hello Mark")
+conn_manager = send(public_key, f"Hello Mark")
 # for i in range(1500):
 #     send(public_key, f"S! {i}")
 #     time.sleep(1)
 time.sleep(3)
 #
-server = get_all_servers()[0]
-server_pub_k = get_pub_keys()[server]
+server = get_all_servers()[1]
+server_pub_k = get_pub_keys([server], conn_manager)[server]
 keys = get_keys_f()
 message = {UpdateReq.sender_public_key: pack_k(public_key),
            UpdateReq.last_message_time: datetime.datetime(1980, 1, 1).isoformat()}

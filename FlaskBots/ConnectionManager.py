@@ -1,5 +1,6 @@
 import datetime
 import time
+from collections import namedtuple
 from threading import Thread
 import sys
 
@@ -9,16 +10,21 @@ import requests
 from FlaskBots.Network import get_all_servers
 from utils.coding import unpack_pub_k
 
+ServerInfo = namedtuple('ServerInfo', ['addr', 'last_online_dt', 'pub_k'])
+
 
 class ConnectionManager:
-    def __init__(self):
+    def __init__(self, is_server):
         self.connections = {}
+        self.is_server = is_server
         for server in get_all_servers():
             self.connections[server] = ConnectionInfo(datetime.datetime(1980, 1, 1), None)
 
     def start(self):
         thread = Thread(target=self.background_updater, daemon=True)
         thread.start()
+        time.sleep(3)
+        print("CON MAN STARTED")
         return self
 
     def background_updater(self):
@@ -34,9 +40,9 @@ class ConnectionManager:
                     pass  # TODO log
 
     def get_online_servers(self):
-        res = [s for s, server_info in self.connections.items() if server_info.is_online()]
+        res = [s for s in self.get_all_servers() if is_online(s.last_online_dt)]
         if not res:
-            raise Exception(f"{self.connections.items()}")
+            raise Exception(f"All servers are offline: {self.get_all_servers()}")
         return res
 
     def get_server_pub_k(self, server):
@@ -47,7 +53,14 @@ class ConnectionManager:
             raise Exception("Attempt to get pub_k of offline server")
 
     def get_all_servers(self):
-        return list(self.connections.keys())
+        return [ServerInfo(addr, info.last_online_dt, info.pub_k)
+                for addr, info in self.connections.items()]
+
+
+def is_online(last_online_dt):
+    now = datetime.datetime.now()
+    delta = now - last_online_dt
+    return delta.total_seconds() < 5
 
 
 class ConnectionInfo:
