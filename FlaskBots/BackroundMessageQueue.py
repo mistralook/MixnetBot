@@ -1,4 +1,3 @@
-from FlaskBots.Network import get_all_servers
 import random
 import json
 import requests
@@ -12,17 +11,22 @@ class MessageTask:
         self.data = data
 
     def send(self):
-        requests.post(url=self.url, data=self.data)
+        try:
+            requests.post(url=self.url, data=self.data)
+        except ConnectionError:
+            pass
+            # TODO log it
 
 
 class MessageQueue:
-    def __init__(self):
+    def __init__(self, connection_manager):
         self.messages = list()
         self.send_interval = 1
         self.buffer_size = 0
+        self.connection_manager = connection_manager
 
     def fill_by_junk(self):
-        servers = get_all_servers()
+        servers = self.connection_manager.get_all_servers()
         if len(self.messages) < self.buffer_size:
             for i in range(self.buffer_size - len(self.messages)):
                 junk_mes = {Field.to: None,
