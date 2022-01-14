@@ -5,7 +5,7 @@ import py_cui
 import sys
 
 sys.path.append('../')
-from Domain import send, get_updates, get_messages_by_pub_k, get_all_chats
+from MixnetClient import send, get_updates, get_messages_by_pub_k, get_all_chats
 from Keys import generate_and_save_keys, get_keys_f, get_keys
 from utils.coding import unpack_pub_k
 

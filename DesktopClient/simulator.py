@@ -6,7 +6,7 @@ import requests
 
 from DesktopClient.Keys import get_keys_f
 from DesktopClient.multiple_encryption import get_pub_keys
-from Domain import send, get_update_request_message
+from MixnetClient import send, get_update_request_message
 
 # # private_key = PrivateKey.generate()
 # # public_key = private_key.public_key

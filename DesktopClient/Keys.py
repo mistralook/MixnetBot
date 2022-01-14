@@ -16,23 +16,10 @@ class Keys:
         self.public_key = pk
 
 
-def generate_and_save_keys(nickname, force=False):
-    private = PrivateKey.generate()
-    keys = {"private_key": pack_k(private),
-            "public_key": pack_k(private.public_key),
-            "nickname": nickname}
-    if not force and os.path.isfile(name):
-        raise FileExistsError
-    with open(name, 'w') as file:
-        file.write(json.dumps(keys))
 
 
-def get_keys():
-    if not os.path.isfile(name):
-        raise FileNotFoundError
-    with open(name, 'r') as file:
-        content = file.read()
-        return json.loads(content)
+
+
 
 
 def get_keys_f():
