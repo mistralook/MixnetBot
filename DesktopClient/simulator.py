@@ -27,7 +27,7 @@ public_key = recv_keys.public_key
 private_key = recv_keys.private_key
 conn_manager = send(public_key, f"7Hello Mark")
 for i in range(1500):
-    mes = f"T! {i}"
+    mes = f"S! {i}"
     send(public_key, mes)
     print("SENT", mes)
     time.sleep(3)

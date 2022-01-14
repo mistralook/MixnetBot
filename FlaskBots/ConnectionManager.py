@@ -21,14 +21,14 @@ class ConnectionManager:
             self.connections[server] = ConnectionInfo(datetime.datetime(1980, 1, 1), None)
 
     def start(self):
-        thread = Thread(target=self.background_updater, daemon=True)
+        thread = Thread(target=self.background_ping_man, daemon=True)
         thread.start()
         time.sleep(3)
         return self
 
-    def background_updater(self):
+    def background_ping_man(self):
         while True:
-            for mixer in get_all_servers():
+            for mixer in self.connections.keys():
                 try:
                     response = requests.get(f"{mixer}/public-key")
                     pub_k = unpack_pub_k(response.json()['public_key'])
