@@ -116,6 +116,7 @@ class MixerMessenger:
 
 # Create the CUI, pass it to the wrapper object, and start it
 root = py_cui.PyCUI(8, 6)
+root.set_refresh_timeout(1)
 root.set_title('MixerNet')
 # root.enable_logging(logging_level=logging.DEBUG)
 s = MixerMessenger(root)
