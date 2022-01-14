@@ -4,10 +4,11 @@ from flask import request
 from utils.coding import pack_k
 
 app = Flask(__name__)
-# PORTS = [8000, 9000, 10000]
-PORTS = []
-# mixers = [f"http://127.0.0.1:{port}" for port in PORTS]
-mixers = set()  # TODO перевести на List и убедиться что повторений нет.
+PORTS = [8000, 9000, 10000]
+mixers = set([f"127.0.0.1:{port}" for port in PORTS])
+
+
+# mixers = set()  # TODO перевести на List и убедиться что повторений нет.
 
 
 @app.route("/get-mixers", methods=['GET'])
