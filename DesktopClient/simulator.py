@@ -25,7 +25,7 @@ from utils.coding import unpack_obj, pack_k, pack_obj, unpack_str
 recv_keys = get_keys_f()
 public_key = recv_keys.public_key
 private_key = recv_keys.private_key
-conn_manager = send(public_key, f"7Hello Mark")
+conn_manager = send(public_key, f"Hello Mark")
 for i in range(1500):
     mes = f"T! {i}"
     send(public_key, mes)

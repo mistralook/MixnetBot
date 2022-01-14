@@ -8,8 +8,6 @@ from utils.coding import get_hash_of_uids
 
 sys.path.append('../')
 
-
-
 conn = SqliteDatabase('db/mails.sqlite')
 conn.connect()
 
@@ -30,19 +28,19 @@ class Message(BaseModel):
         table_name = 'Message'
 
 
-conn.create_tables([Message])
+class User(BaseModel):
+    pub_k = TextField(column_name='pub_k', null=False)
+    name = TextField(column_name='name', null=False)
+
+    class Meta:
+        table_name = 'User'
+
+
+conn.create_tables([Message, User])
 
 
 class MailRepository:
     def add_message(self, sender_pub_k, message, timestamp: str, uid: int):
-        # try:
-        #     created = Message(sender_pub_k=sender_pub_k, text=message,
-        #                       timestamp=parser.parse(timestamp),
-        #                       uid=uid)
-        #     created.save()
-        # except:
-        #     print(uid)
-        #     exit()
         created = Message(sender_pub_k=sender_pub_k, text=message,
                           timestamp=parser.parse(timestamp),
                           uid=str(uid))
@@ -65,3 +63,12 @@ class MailRepository:
 
     def get_all_senders(self):
         return list(set(m.sender_pub_k for m in Message.select()))
+
+    def add_user(self, name, pub_k):
+        User(name=name, pub_k=pub_k).save()
+
+    def get_user_pub_k(self, name):
+        res = User.get(User.name == name)
+        if not res:
+            return None
+        return res

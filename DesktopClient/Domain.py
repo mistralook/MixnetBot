@@ -86,3 +86,7 @@ def get_messages_by_pub_k(sender_pub_k):
 
 def get_all_chats():
     return mail_repo.get_all_senders()
+
+
+def add_user(name, pub_k):
+    mail_repo.add_user(name, pub_k)

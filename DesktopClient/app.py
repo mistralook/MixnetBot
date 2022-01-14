@@ -5,7 +5,7 @@ import py_cui
 import sys
 
 sys.path.append('../')
-from Domain import send, get_updates, get_messages_by_pub_k, get_all_chats
+from Domain import send, get_updates, get_messages_by_pub_k, get_all_chats, add_user
 from Keys import generate_and_save_keys, get_keys_f, get_keys
 from utils.coding import unpack_pub_k
 
@@ -18,14 +18,12 @@ class MixerMessenger:
                                                    selected_color=py_cui.MAGENTA_ON_BLACK)
         self.chat_cell = self.master.add_scroll_menu("Messages", 0, 1, 5, 5)
         self.add_chat = self.master.add_button(" + Chat", 5, 0, command=self.show_add_pub_k_text_box)
-        self.generate_keys_btn = self.master.add_button("Generate keys", 6, 0, command=self.show_name_text_box)
-        self.show_keys_btn = self.master.add_button("Show keys", 7, 0, command=self.show_keys)
+        self.show_keys_btn = self.master.add_button("Show keys", 6, 0, command=self.show_keys)
         self.input = self.master.add_text_box("Your input", 5, 1, 1, 5)
 
         self.chats_scroll_cell.add_key_command(py_cui.keys.KEY_ENTER, self.show_chat)
         self.input.add_key_command(py_cui.keys.KEY_ENTER, self.send_message)
         self.start_background_updating()
-        self.chats = []
         self.fill_chats_cell()
 
     def fill_chats_cell(self):
@@ -64,9 +62,6 @@ class MixerMessenger:
         except FileExistsError:
             self.master.show_warning_popup("Warning", 'Keys are already generated')
 
-    def show_name_text_box(self):
-        self.master.show_text_box_popup('Please enter your name', self.register_and_generate_keys)
-
     def show_keys(self):
         try:
             text = get_keys()["public_key"]
@@ -80,14 +75,19 @@ class MixerMessenger:
         else:
             self.master.show_message_popup('Cancelled', 'The quit operation was cancelled.')
 
-    def add_chat_to_list(self, receiver_pub_k):
-        self.chats.append(receiver_pub_k)
-        self.chats_scroll_cell._view_items = self.chats
-        # self.chats_scroll_cell.add_item(receiver_pub_k)
-
     def show_add_pub_k_text_box(self):
-        # Here, reset title is a function that takes a string parameter, which will be the user entered string
-        self.master.show_text_box_popup('Please enter receiver pub k', self.add_chat_to_list)
+        self.master.show_text_box_popup('Please enter receiver pub k', self.show_type_username_popup)
+
+    def show_type_username_popup(self, receiver_pub_k):
+        self.tmp_recv_pub_k = receiver_pub_k
+        self.master.show_text_box_popup('Please enter username', self.add_chat_to_list)
+
+    def add_chat_to_list(self, username):
+        add_user(username, self.tmp_recv_pub_k)
+        # self.chats.append(receiver_pub_k)
+        self.chats_scroll_cell._view_items = self.chats
+        self.master.show_text_box_popup('Write recv name in func', self.add_chat_to_list)
+        # self.chats_scroll_cell.add_item(receiver_pub_k)
 
     def reset_title(self, new_title):
         self.master.set_title(new_title)
