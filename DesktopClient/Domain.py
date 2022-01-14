@@ -18,6 +18,7 @@ from FlaskBots.Network import get_all_servers
 
 mail_repo = MailRepository()
 conn_manager = ConnectionManager(False).start()
+print("CON MAN STARTED")
 time.sleep(2)
 try:
     generate_and_save_keys("User")

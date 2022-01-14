@@ -2,6 +2,7 @@ import argparse
 import json
 from threading import Thread
 
+import requests
 from flask import Flask
 from flask import request
 
@@ -93,6 +94,7 @@ def register_new_user():
     return "OK", 200
 
 
+xport = None
 if __name__ == '__main__':
     q_thread = Thread(target=message_queue.send_mixed, daemon=True)
     q_thread.start()
@@ -101,4 +103,6 @@ if __name__ == '__main__':
     parser.add_argument("--xport", dest="xport", default=5000, type=int)
     args = parser.parse_args()
     db.connect(args.xport)
+    xport = args.xport
+    response = requests.get(url="http://127.0.0.1:5000/register", json={"port": xport})
     app.run(port=args.xport, debug=True)
