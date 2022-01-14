@@ -23,26 +23,35 @@ class MixerMessenger:
         self.show_chat_list()
         self.chats_scroll_cell.add_key_command(py_cui.keys.KEY_ENTER, self.show_chat)
         self.input.add_key_command(py_cui.keys.KEY_ENTER, self.send_message)
+        self.start_background_updating()
         # self.fill_chats_cell()
 
     # def fill_chats_cell(self):
     #     self.chats = get_all_chats()
     #     self.chats_scroll_cell._view_items = self.chats
     #
-    def show_chat(self):
-        self.chat_cell.clear()
+    def show_chat(self, silent=False):
         cur_receiver = self.chats_scroll_cell.get()
         if not cur_receiver:
-            self.master.show_warning_popup("Warning", "No chat is selected")
+            if not silent:
+                self.master.show_warning_popup("Warning", "No chat is selected")
             return
+        self.show_chat_spec(cur_receiver)
+
+    def show_chat_spec(self, cur_receiver):
+        self.chat_cell.clear()
         self.chat_cell.set_title(f"Chat with: {cur_receiver.name}")
         self.fill_chat(cur_receiver)
-        self.master.move_focus(self.input)
+        # self.master.move_focus(self.input)
 
     #
     def fill_chat(self, user):
-        incoming, outgoing = self.app.get_chat(user)
-        self.chat_cell.add_item(m)
+        messages = self.app.get_chat(user)
+        for m in messages:
+            if m.direction == "outgoing":
+                self.chat_cell.add_item(f"                      {m.text}")
+            else:
+                self.chat_cell.add_item(m.text)
 
     def scroll_chat_to_bottom(self):
         self.chat_cell._jump_to_bottom(self.chat_cell.get_viewport_height())
@@ -53,7 +62,7 @@ class MixerMessenger:
         if not cur_receiver:
             self.master.show_warning_popup("Warning", "Select receiver from 'Chats' menu")
             return
-        self.app.send(receiver=cur_receiver.pub_k, message=message)
+        self.app.send(receiver_pub_k=cur_receiver.pub_k, message=message)
         self.show_chat()
         # self.chat_cell.add_item(message)
         self.input.clear()
@@ -98,6 +107,7 @@ class MixerMessenger:
 
     def show_chat_list(self):
         self.chats_scroll_cell.clear()
+        # self.chats_scroll_cell.add_item("---")
         for chat in self.app.get_chat_list():
             self.chats_scroll_cell.add_item(chat)
 
@@ -105,24 +115,27 @@ class MixerMessenger:
     # def reset_title(self, new_title):
     #     self.master.set_title(new_title)
     #
-    # def start_background_updating(self):
-    #     # return
-    #     operation_thread = threading.Thread(target=self.background_update, daemon=True)
-    #     operation_thread.start()
+    def start_background_updating(self):
+        # return
+        operation_thread = threading.Thread(target=self.background_update, daemon=True)
+        operation_thread.start()
+
     #
     # def add_new_chats_from_updates(self, updated_chats):
     #     self.chats = list(set(self.chats).union(updated_chats))
     #     self.chats_scroll_cell._view_items = self.chats
     #
-    # def background_update(self):
-    #     while True:
-    #         updated_chats, _ = get_updates()
-    #         self.add_new_chats_from_updates(updated_chats)
-    #         cur_chat = self.chats_scroll_cell.get()
-    #         if cur_chat in updated_chats:
-    #             self.show_chat()
-    #
-    #         time.sleep(1)
+    def background_update(self):
+        while True:
+            cur_chat = self.chats_scroll_cell.get()
+            self.show_chat_list()
+            self.show_chat(silent=True)
+            # updated_chats, _ = get_updates()
+            # self.add_new_chats_from_updates(updated_chats)
+            # cur_chat = self.chats_scroll_cell.get()
+            # if cur_chat in updated_chats:
+            #     self.show_chat()
+            time.sleep(1)
 
     # self.show_chat()
 

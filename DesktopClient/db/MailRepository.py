@@ -84,7 +84,7 @@ class MailRepository:
         return list(set(m.sender_pub_k for m in Message.select()))
 
     def get_chat(self, pub_k):  # TODO list(...)
-        return [x for x in Message.select().where(Message.sender_pub_k == pub_k)]
+        return [x for x in Message.select().where(Message.sender_pub_k == pub_k).order_by(Message.timestamp)]
 
 
 class UserRepository:  # TODO попробовать добавить одного пользователя дважды

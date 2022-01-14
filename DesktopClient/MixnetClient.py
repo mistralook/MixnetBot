@@ -31,13 +31,13 @@ class MixnetClient:
     def send(self, receiver_pub_k, message: str):
         route = self.build_route(unpack_pub_k(receiver_pub_k))
         uid = uuid.uuid4().int
-        onion_encrypted = multiple_encrypt(message, route, self.conn_manager, uid)
+        onion_encrypted = multiple_encrypt(message, route, self.conn_manager, uid, self.key_manager)
         first_node = onion_encrypted[Field.to]
         data = onion_encrypted[Field.body]
         # print("sent", data)
         requests.post(url=first_node, data=data)
         self.mail_repo.add_message(receiver_pub_k, message,
-                                   datetime.datetime.now(),
+                                   datetime.datetime.utcnow(),
                                    uid, direction=MessageDirection.outgoing)
 
     def build_route(self, recv_pub_k):
@@ -51,7 +51,7 @@ class MixnetClient:
         return self.user_repo.get_all_users()
 
     def get_chat(self, user: User):
-        self.mail_repo.get_chat(user.pub_k)
+        return self.mail_repo.get_chat(user.pub_k)
 
     @property
     def mail_repo(self): return self.repo.mail

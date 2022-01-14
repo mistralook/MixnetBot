@@ -23,10 +23,10 @@ message_queue = MessageQueue(connection_manager)
 
 print("PUBLIC KEY", PUBLIC_KEY.__bytes__())
 
-import logging
-
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+# import logging
+#
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
 
 
 @app.route("/public-key", methods=['GET'])
@@ -74,7 +74,7 @@ def send_broadcast(message):
 @app.route("/messages", methods=['GET'])
 def get_all_messages():
     update_request = get_json_dict(request)
-    # print("GETTING UPDATES", update_request)
+    print("GETTING UPDATES", update_request)
     updates = get_updates_for_user(update_request, db)
     client_pub_k = update_request[UpdateReq.sender_public_key]
     return pack_obj(updates, pub_k=unpack_pub_k(client_pub_k))

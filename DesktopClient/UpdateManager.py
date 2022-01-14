@@ -1,3 +1,4 @@
+import datetime
 import json
 import random
 import sys
@@ -22,17 +23,23 @@ class UpdateManager:
         self.repo = repo
 
     def start(self):
-        thread = Thread(target=self.get_updates, daemon=True)
+        thread = Thread(target=self.background_update, daemon=True)
         thread.start()
         # time.sleep(3)
         return self
 
-    def get_updates(self):
+    def background_update(self):
+        while True:
+            self.get_updates()
+            time.sleep(1)
+
+    def get_updates(self, all_messages=False):
         try:
             server = random.choice(self.conn_manager.get_online_servers())
         except RuntimeError:  # all offline
+            print("All offline", self.conn_manager.connections)
             return [], []
-        upd_request = self.get_update_request_message()
+        upd_request = self.get_update_request_message(all_messages)
         try:
             response = requests.get(url=f"{server.addr}/messages", data=pack_obj(upd_request, server.pub_k))
             return self.parse_updates(response)
@@ -56,11 +63,13 @@ class UpdateManager:
             ts = parser.parse(unp[Field.timestamp])
             self.repo.mail.add_message(unp[Field.sender_pub_k], mes, ts,
                                        unp[Field.uid], direction=MessageDirection.incoming)
+            self.repo.user.add_user(name=unp[Field.name], pub_k=unp[Field.sender_pub_k])
             senders.add(unp[Field.sender_pub_k])
-            messages.append(unp[Field.body])
+            messages.append(mes)
         return list(senders), messages
 
-    def get_update_request_message(self):
-        return {UpdateReq.sender_public_key: pack_k(self.key_manager.pk),
-                UpdateReq.last_message_time: self.repo.mail.get_last_message_time(),
-                UpdateReq.all_message_hash: self.repo.mail.get_all_messages_hash()}
+    def get_update_request_message(self, all_messages=False):
+        res = {UpdateReq.sender_public_key: pack_k(self.key_manager.pk),
+               UpdateReq.last_message_time: datetime.datetime(1975, 1,
+                                                              1).isoformat() if all_messages else self.repo.mail.get_last_message_time()}
+        return res
