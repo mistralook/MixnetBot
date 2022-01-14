@@ -15,7 +15,7 @@ ServerInfo = namedtuple('ServerInfo', ['addr', 'last_online_dt', 'pub_k'])
 
 class ConnectionManager:
     def __init__(self, is_server):
-        self.connections = {}
+        self.connections = {}  # TODO энергонезависимый кэш
         self.is_server = is_server
         for server in get_all_servers():
             self.connections[server] = ConnectionInfo(datetime.datetime(1980, 1, 1), None)

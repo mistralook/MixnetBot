@@ -35,6 +35,14 @@ class KeyManager:
     def keys_are_generated(self):
         return os.path.isfile(self.filename)
 
+    @property
+    def pk(self):
+        return self.get_keys().public
+
+    @property
+    def sk(self):
+        return self.get_keys().private
+
     def _get_keys_from_file(self):
         if not os.path.isfile(self.filename):
             raise FileNotFoundError

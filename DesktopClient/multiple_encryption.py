@@ -6,7 +6,7 @@ import requests
 from datetime import datetime
 from nacl.public import SealedBox, Box
 
-from DesktopClient.Keys import get_keys, get_keys_f
+from DesktopClient.Keys import get_keys_f
 from FlaskBots.Network import get_all_servers
 from utils.coding import base64_str_to_public_key, bytes_to_b64, unpack_pub_k, pack_obj, pack_k, pack_str
 
@@ -22,7 +22,7 @@ from Protocol.FieldType import Field
 #     return pub_key_by_mixer_addr
 
 
-def multiple_encrypt(message_from_user: str, route: list, conn_manager):
+def multiple_encrypt(message_from_user: str, route: list, conn_manager, uid, key_man):
     node_pub_keys = get_pub_keys(route[:-1], conn_manager)
     receiver_pub_k = route[-1]
     packed_receiver_pub_k = pack_k(receiver_pub_k)
@@ -34,7 +34,7 @@ def multiple_encrypt(message_from_user: str, route: list, conn_manager):
     obj = {Field.body: pack_str(message_from_user, keys.private_key, receiver_pub_k),
            Field.to: None,
            Field.timestamp: sending_time,
-           Field.uid: uuid.uuid4().int,
+           Field.uid: uid,
            Field.sender_pub_k: pack_k(keys.public_key),
            Field.cypher_count: cypher_count
            }
