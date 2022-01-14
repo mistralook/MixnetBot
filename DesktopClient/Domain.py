@@ -35,7 +35,7 @@ def send(recv_pub_k, message: str):
     onion_encrypted = multiple_encrypt(message, route, conn_manager)
     first_node = onion_encrypted[Field.to]
     data = onion_encrypted[Field.body]
-    print("sent", data)
+    # print("sent", data)
     requests.post(url=first_node, data=data)
     return conn_manager  # TODO DELETE
 

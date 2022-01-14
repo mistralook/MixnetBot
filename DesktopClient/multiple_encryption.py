@@ -38,7 +38,7 @@ def multiple_encrypt(message_from_user: str, route: list, conn_manager):
            Field.sender_pub_k: pack_k(keys.public_key),
            Field.cypher_count: cypher_count
            }
-    print("ROUTE", route)
+    # print("ROUTE", route)
     first_wrapped = True
     for node in rev:
         cypher_count += 1
@@ -51,7 +51,7 @@ def multiple_encrypt(message_from_user: str, route: list, conn_manager):
         }
         if first_wrapped: obj[Field.timestamp] = sending_time
         first_wrapped = False
-    print(obj)
+    # print(obj)
     return obj
 
 
