@@ -42,6 +42,7 @@ class MixerMessenger:
         self.chat_cell.clear()
         self.chat_cell.set_title(f"Chat with: {cur_receiver.name}")
         self.fill_chat(cur_receiver)
+        self.scroll_chat_to_bottom()
         # self.master.move_focus(self.input)
 
     #
