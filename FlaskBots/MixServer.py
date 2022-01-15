@@ -94,6 +94,13 @@ def register_new_user():
     return "OK", 200
 
 
+@app.route("/new-node-notification", methods=['POST'])
+def add_new():
+    print("ADD NEW NOTIFICATION--------------------------------------------------------")
+    for server in request.json["servers"]:
+        connection_manager.add_connection(server)
+
+
 xport = None
 if __name__ == '__main__':
     q_thread = Thread(target=message_queue.send_mixed, daemon=True)

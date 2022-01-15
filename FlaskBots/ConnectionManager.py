@@ -27,13 +27,18 @@ class ConnectionManager:
         return self
 
     def ping_online_servers(self):
+        print(self.connections)
         while True:
             for mixer in self.connections.keys():
                 try:
+                    # print("BEFORE PING ----------------------------------", datetime.datetime.now())
+                    # print(mixer, "_---------------____________________")
                     response = requests.get(f"{mixer}/public-key")
                     pub_k = unpack_pub_k(response.json()['public_key'])
+                    # print(f"{response}---------------------------------------------- PUB_K")
                     self.connections[mixer] = ConnectionInfo(last_online_dt=datetime.datetime.now(),
                                                              pub_k=pub_k)
+                    print("PING SUCCESS", mixer)
                     time.sleep(1)
                 except requests.exceptions.RequestException:
                     # pass
@@ -57,6 +62,10 @@ class ConnectionManager:
     def get_all_servers(self):
         return [ServerInfo(addr, info.last_online_dt, info.pub_k)
                 for addr, info in self.connections.items()]
+
+    def add_connection(self, server):
+        if server not in self.connections.keys():
+            self.connections[server] = ConnectionInfo(datetime.datetime(1980, 1, 1), None)
 
 
 def is_online(last_online_dt):
