@@ -13,6 +13,7 @@ class MixerMessenger:
     def __init__(self, master: py_cui.PyCUI):
         self.master = master
         self.app = MixnetClient()
+        self.ask_nickname()
         self.chats_scroll_cell = self.master.add_scroll_menu('Chats', 0, 0, row_span=5, column_span=1)
         self.chats_scroll_cell.add_text_color_rule("", py_cui.WHITE_ON_BLACK, 'startswith',
                                                    selected_color=py_cui.MAGENTA_ON_BLACK)
@@ -26,10 +27,13 @@ class MixerMessenger:
         self.start_background_updating()
         # self.fill_chats_cell()
 
-    # def fill_chats_cell(self):
-    #     self.chats = get_all_chats()
-    #     self.chats_scroll_cell._view_items = self.chats
-    #
+    def ask_nickname(self):
+        if not self.app.key_manager.nickname_is_saved:
+            self.master.show_text_box_popup('Please enter your name', self.save_nickname)
+
+    def save_nickname(self, nickname):
+        self.app.key_manager.save_nickname(nickname)
+
     def show_chat(self, silent=False):
         cur_receiver = self.chats_scroll_cell.get()
         if not cur_receiver:

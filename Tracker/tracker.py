@@ -7,7 +7,7 @@ app = Flask(__name__)
 # PORTS = [8000, 9000, 10000]
 PORTS = []
 # mixers = [f"http://127.0.0.1:{port}" for port in PORTS]
-mixers = set()  # TODO перевести на List и убедиться что повторений нет.
+mixers = set()  # TODO перевести на List и убедиться что повторений нет. TODO 2: энергонезависимый кэш
 
 
 @app.route("/get-mixers", methods=['GET'])

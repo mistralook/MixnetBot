@@ -21,10 +21,10 @@ from multiple_encryption import multiple_encrypt
 class MixnetClient:
     def __init__(self):
         self.repo = Repo()
-        self.conn_manager = ConnectionManager(is_server=False).start()
         self.key_manager = KeyManager()
-        self.update_manager = UpdateManager(self.conn_manager, self.key_manager, self.repo).start()
         self.key_manager.try_generate_and_save_keys(nickname="User")
+        self.conn_manager = ConnectionManager(is_server=False).start()
+        self.update_manager = UpdateManager(self.conn_manager, self.key_manager, self.repo).start()
         print("Client & Connection manager STARTED")
         # time.sleep(2)
 

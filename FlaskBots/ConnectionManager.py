@@ -21,12 +21,12 @@ class ConnectionManager:
             self.connections[server] = ConnectionInfo(datetime.datetime(1980, 1, 1), None)
 
     def start(self):
-        thread = Thread(target=self.background_ping_man, daemon=True)
+        thread = Thread(target=self.ping_online_servers, daemon=True)
         thread.start()
         time.sleep(3)
         return self
 
-    def background_ping_man(self):
+    def ping_online_servers(self):
         while True:
             for mixer in self.connections.keys():
                 try:

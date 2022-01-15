@@ -33,7 +33,7 @@ def multiple_encrypt(message_from_user: str, route: list, conn_manager, uid, key
            Field.to: None,
            Field.timestamp: sending_time,
            Field.uid: uid,
-           Field.name: pack_k(key_manager.pk)[:4],
+           Field.name: key_manager.nick,
            Field.sender_pub_k: pack_k(key_manager.pk),
            Field.cypher_count: cypher_count
            }
