@@ -2,6 +2,7 @@ import argparse
 import json
 from threading import Thread
 
+import requests
 from flask import Flask
 from flask import request
 
@@ -22,10 +23,10 @@ message_queue = MessageQueue(connection_manager)
 
 print("PUBLIC KEY", PUBLIC_KEY.__bytes__())
 
-import logging
-
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+# import logging
+#
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
 
 
 @app.route("/public-key", methods=['GET'])
@@ -73,7 +74,7 @@ def send_broadcast(message):
 @app.route("/messages", methods=['GET'])
 def get_all_messages():
     update_request = get_json_dict(request)
-    # print("GETTING UPDATES", update_request)
+    print("GETTING UPDATES", update_request)
     updates = get_updates_for_user(update_request, db)
     client_pub_k = update_request[UpdateReq.sender_public_key]
     return pack_obj(updates, pub_k=unpack_pub_k(client_pub_k))
@@ -93,6 +94,7 @@ def register_new_user():
     return "OK", 200
 
 
+xport = None
 if __name__ == '__main__':
     q_thread = Thread(target=message_queue.send_mixed, daemon=True)
     q_thread.start()
@@ -101,4 +103,6 @@ if __name__ == '__main__':
     parser.add_argument("--xport", dest="xport", default=5000, type=int)
     args = parser.parse_args()
     db.connect(args.xport)
+    xport = args.xport
+    response = requests.get(url="http://127.0.0.1:5000/register", json={"port": xport})
     app.run(port=args.xport, debug=True)

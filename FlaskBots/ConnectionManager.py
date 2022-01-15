@@ -15,20 +15,20 @@ ServerInfo = namedtuple('ServerInfo', ['addr', 'last_online_dt', 'pub_k'])
 
 class ConnectionManager:
     def __init__(self, is_server):
-        self.connections = {}
+        self.connections = {}  # TODO энергонезависимый кэш
         self.is_server = is_server
         for server in get_all_servers():
             self.connections[server] = ConnectionInfo(datetime.datetime(1980, 1, 1), None)
 
     def start(self):
-        thread = Thread(target=self.background_updater, daemon=True)
+        thread = Thread(target=self.ping_online_servers, daemon=True)
         thread.start()
         time.sleep(3)
         return self
 
-    def background_updater(self):
+    def ping_online_servers(self):
         while True:
-            for mixer in get_all_servers():
+            for mixer in self.connections.keys():
                 try:
                     response = requests.get(f"{mixer}/public-key")
                     pub_k = unpack_pub_k(response.json()['public_key'])

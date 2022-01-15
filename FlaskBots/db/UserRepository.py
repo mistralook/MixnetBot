@@ -13,5 +13,5 @@ class UserRepository:
         except peewee.IntegrityError:
             return False
 
-    def get_user_by_pub_k(self, pub_k):
+    def get_user_by_pub_k(self, pub_k):#TODO just get
         return self.user_model.select().where(self.user_model.pub_k == pub_k).get()

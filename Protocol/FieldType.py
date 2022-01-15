@@ -18,6 +18,4 @@ class Field:
     cypher_count = "cypher_count"  # показывает во сколько шифров обернуто body, находящееся на этой же глубине
     timestamp = "timestamp"
     uid = "uid"
-
-
-
+    name = "name"

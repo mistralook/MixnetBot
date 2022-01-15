@@ -6,7 +6,6 @@ import requests
 from datetime import datetime
 from nacl.public import SealedBox, Box
 
-from DesktopClient.Keys import get_keys, get_keys_f
 from FlaskBots.Network import get_all_servers
 from utils.coding import base64_str_to_public_key, bytes_to_b64, unpack_pub_k, pack_obj, pack_k, pack_str
 
@@ -22,7 +21,7 @@ from Protocol.FieldType import Field
 #     return pub_key_by_mixer_addr
 
 
-def multiple_encrypt(message_from_user: str, route: list, conn_manager):
+def multiple_encrypt(message_from_user: str, route: list, conn_manager, uid, key_manager):
     node_pub_keys = get_pub_keys(route[:-1], conn_manager)
     receiver_pub_k = route[-1]
     packed_receiver_pub_k = pack_k(receiver_pub_k)
@@ -30,12 +29,12 @@ def multiple_encrypt(message_from_user: str, route: list, conn_manager):
     sending_time = datetime.utcnow().isoformat()
     rev = list(reversed(route))  # сначала получатель, потом конечный миксер, ..., 1-й миксер
     cypher_count = 0
-    keys = get_keys_f()
-    obj = {Field.body: pack_str(message_from_user, keys.private_key, receiver_pub_k),
+    obj = {Field.body: pack_str(message_from_user, key_manager.sk, receiver_pub_k),
            Field.to: None,
            Field.timestamp: sending_time,
-           Field.uid: uuid.uuid4().int,
-           Field.sender_pub_k: pack_k(keys.public_key),
+           Field.uid: uid,
+           Field.name: key_manager.nick,
+           Field.sender_pub_k: pack_k(key_manager.pk),
            Field.cypher_count: cypher_count
            }
     # print("ROUTE", route)

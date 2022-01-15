@@ -37,7 +37,7 @@ class MessageQueue:
     def send_mixed(self):
         while True:
             time.sleep(self.send_interval)
-            self.fill_by_junk()
+            # self.fill_by_junk()
             random.shuffle(self.messages)
             for message in self.messages:
                 message.send()

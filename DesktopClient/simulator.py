@@ -6,7 +6,7 @@ import requests
 
 from DesktopClient.Keys import get_keys_f
 from DesktopClient.multiple_encryption import get_pub_keys
-from Domain import send, get_update_request_message
+from MixnetClient import send, get_update_request_message
 
 # # private_key = PrivateKey.generate()
 # # public_key = private_key.public_key
@@ -27,7 +27,7 @@ public_key = recv_keys.public_key
 private_key = recv_keys.private_key
 conn_manager = send(public_key, f"7Hello Mark")
 for i in range(1500):
-    mes = f"T! {i}"
+    mes = f"Y! {i}"
     send(public_key, mes)
     print("SENT", mes)
     time.sleep(3)

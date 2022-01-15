@@ -4,6 +4,7 @@ from Protocol.UpdateRequest import UpdateReq
 from Protocol.Updates import Update, UpdateType
 from utils.coding import unpack_obj, get_hash_of_uids
 from dateutil import parser
+
 PRIVATE_KEY = PrivateKey.generate()
 PUBLIC_KEY = PRIVATE_KEY.public_key
 
@@ -13,7 +14,8 @@ def get_json_dict(request) -> dict:
     return unpack_obj(data=data, sk=PRIVATE_KEY)
 
 
-def get_updates_for_user(update_request: dict, db) -> dict:
+def get_updates_for_user(update_request: dict, db) -> dict:  # TODO проверять хэши
+    print("GETTING UPDATES", update_request[UpdateReq.last_message_time])
     pub_k = update_request[UpdateReq.sender_public_key]
     all_messages = db.mail_repo.get_messages_by_recv_pub_k_time_ASC(pub_k)
     if update_request[UpdateReq.last_message_time] is None:
