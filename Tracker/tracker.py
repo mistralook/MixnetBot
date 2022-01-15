@@ -1,3 +1,4 @@
+import requests
 from flask import Flask
 from flask import request
 
@@ -19,14 +20,29 @@ def get_mixers():
 
 @app.route("/register", methods=['GET'])
 def register():
-    a = request.environ['REMOTE_ADDR']
+    h = "http://"
+    address = request.remote_addr
+    if h not in address:
+        address = h + address
     p = request.environ['REMOTE_PORT']
     # print(a, p)
     # print("DATA", request.json)
     mixer_port = request.json["port"]
-    mixers.add(f"{request.remote_addr}:{mixer_port}")
+    mixers.add(f"{address}:{mixer_port}")
+    # [requests.get(f"{mixer}/new-node-notification") for mixer in mixers]
+    notify_all_nodes()
     print("MIXERS:", mixers)
     return "OK", 200
+
+
+def notify_all_nodes():
+    for mixer in mixers:
+        url = f"{mixer}/new-node-notification"
+        print(f"SENDING {url} ALL DATA")
+        # requests.post(url=url,
+        data = {"servers": list(mixers)}
+        requests.post(url=url)
+    # requests.post(url=first_node, data=data)
 
 
 if __name__ == '__main__':

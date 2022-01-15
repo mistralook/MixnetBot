@@ -36,9 +36,12 @@ class ConnectionManager:
                                                              pub_k=pub_k)
                     time.sleep(1)
                 except requests.exceptions.RequestException:
-                    pass  # TODO log
+                    # pass
+                    print("Exc in ping")
+                # time.sleep(1)
 
     def get_online_servers(self):
+
         res = [s for s in self.get_all_servers() if is_online(s.last_online_dt)]
         if not res:
             raise RuntimeError(f"All servers are offline: {self.get_all_servers()}")
